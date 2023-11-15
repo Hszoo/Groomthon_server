@@ -16,65 +16,60 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class GroupService {
-    private static final String ERROR = "error";
-    private static final String SUCCESS = "success";
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+
     public String save(String currentUserEmail, GroupDTO groupDTO) {
-        Optional<User> optionalUser = findUserEmail(currentUserEmail);
-        if (optionalUser.isPresent()) {
+        User user = getByUser(currentUserEmail);
+        if (user != null) {
             Group group = convertToEntity(groupDTO);
-            group.setGroupHost(optionalUser.get());
+            group.setGroupHost(user);
             group.setCurrentParticipants(1);
             groupRepository.save(group);
-            groupMemberRepository.save(new GroupMember(optionalUser.get(), group));
+            groupMemberRepository.save(new GroupMember(user, group));
+            return "그룹생성이 완료되었습니다.";
         }
-        return SUCCESS;
+        return "error";
     }
 
     public String update(String currentUserEmail, GroupDTO groupDTO) {
-        Optional<User> optionalUser = findUserEmail(currentUserEmail);
-        Optional<Group> optionalGroup = findGroup(groupDTO.getGroupId());
-
-        User user = optionalUser.get();
-        Group group = optionalGroup.get();
-        if(!optionalUser.isPresent() || !optionalGroup.isPresent() || group.getGroupHost().getUserId() != user.getUserId()) {
-            return "error";
+        User user = getByUser(currentUserEmail);
+        Group group = getByGroup(groupDTO);
+        if (user != null && group != null && group.getGroupHost().getUserId().equals(user.getUserId())) {
+            updateGroupDetails(group, groupDTO);
+            groupRepository.save(group);
+            return "그룹 업데이트가 완료되었습니다.";
         }
+        return "error";
+    }
+
+    public String delete(String currentUserEmail, GroupDTO groupDTO) {
+        User user = getByUser(currentUserEmail);
+        Group group = getByGroup(groupDTO);
+        if (user != null && group != null && group.getGroupHost().getUserId().equals(user.getUserId())) {
+            groupRepository.delete(group);
+            return "그룹삭제가 완료되었습니다.";
+        }
+        return "error";
+    }
+
+    private void updateGroupDetails(Group group, GroupDTO groupDTO) {
         group.setGroupTitle(groupDTO.getGroupTitle());
         group.setGroupInfo(groupDTO.getGroupInfo());
         group.setMaxParticipants(groupDTO.getMaxParticipants());
         group.setCategory(groupDTO.getCategory());
         group.setCloseDate(groupDTO.getCloseDate());
-        groupRepository.save(group);
-        return "success";
-    }
-
-    public String delete(String currentUserEmail, GroupDTO groupDTO) {
-        Optional<User> optionalUser = findUserEmail(currentUserEmail);
-        Optional<Group> optionalGroup = findGroup(groupDTO.getGroupId());
-
-        User user = optionalUser.get();
-        Group group = optionalGroup.get();
-        if(!optionalUser.isPresent() || !optionalGroup.isPresent() || group.getGroupHost().getUserId() != user.getUserId()) {
-            return "error";
-        }
-        groupRepository.delete(group);
-        return "success";
     }
 
     private Group convertToEntity(GroupDTO groupDTO) {
         return modelMapper.map(groupDTO, Group.class);
     }
-
-    private Optional<User> findUserEmail(String currentUserEmail) {
-        return userRepository.findByUserEmail(currentUserEmail);
+    private User getByUser(String currentUserEmail) {
+        return userRepository.findByUserEmail(currentUserEmail).orElse(null);
     }
-
-    private Optional<Group> findGroup(Long groupId) {
-        return groupRepository.findById(groupId);
+    private Group getByGroup(GroupDTO groupDTO) {
+        return groupRepository.findById(groupDTO.getGroupId()).orElse(null);
     }
-
 }

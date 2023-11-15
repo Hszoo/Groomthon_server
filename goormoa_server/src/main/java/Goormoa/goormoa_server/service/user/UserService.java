@@ -16,42 +16,42 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private static final String ERROR = "error";
-    private static final String SUCCESS = "success";
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
     @Value("${jwt.secret}")
     private String secretKey;
-
     private final Long expiredMs = 1000 * 60 * 60L; // 1 hour
 
     public String save(UserDTO userDTO) {
-        if (findUserEmail(userDTO.getUserEmail()).isPresent()) {
-            return ERROR;
+        if (userRepository.findByUserEmail(userDTO.getUserEmail()).isPresent()) {
+            return "존재하는 이메일 입니다.";
         }
         User user = convertToEntity(userDTO);
         user.setUserPassword(encodePassword(userDTO.getUserPassword()));
         userRepository.save(user);
-        return SUCCESS;
+        return "회원가입이 완료되었습니다.";
     }
 
     public TokenDTO login(UserDTO userDTO) {
-        return findUserEmail(userDTO.getUserEmail())
-                .filter(user -> passwordEncoder.matches(userDTO.getUserPassword(), user.getUserPassword()))
-                .map(user -> new TokenDTO(JwtUtil.createJwt(user.getUserEmail(), secretKey, expiredMs)))
-                .orElse(null);
+        Optional<User> userOptional = userRepository.findByUserEmail(userDTO.getUserEmail());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (passwordEncoder.matches(userDTO.getUserPassword(), user.getUserPassword())) {
+                return new TokenDTO(JwtUtil.createJwt(user.getUserEmail(), secretKey, expiredMs));
+            }
+        }
+        return null;
     }
 
     public String delete(String currentUserEmail) {
-        return findUserEmail(currentUserEmail)
-                .map(user -> {
-                    userRepository.delete(user);
-                    return SUCCESS;
-                })
-                .orElse(ERROR);
+        Optional<User> userOptional = userRepository.findByUserEmail(currentUserEmail);
+        if (userOptional.isPresent()) {
+            userRepository.delete(userOptional.get());
+            return "회원탈퇴가 완료되었습니다.";
+        }
+        return "회원탈퇴가 실패했습니다.";
     }
     public Optional<User> findUserEmail(String currentUserEmail) {
         return userRepository.findByUserEmail(currentUserEmail);

@@ -19,31 +19,22 @@ public class GroupController {
     private final GroupService groupService;
     private final AuthenticationService authenticationService;
 
-    @PostMapping
+    @PostMapping // 그룹생성
     public ResponseEntity<String> groupCreate(@RequestBody GroupDTO groupDTO) {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        String signupResult = groupService.save(currentUserEmail ,groupDTO);
-        return "error".equals(signupResult) ?
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("그룹 생성 실패") :
-                ResponseEntity.ok(signupResult);
+        return ResponseEntity.ok(groupService.save(currentUserEmail ,groupDTO));
     }
 
-    @PostMapping("/update")
+    @PostMapping("/update") // 그룹 업데이트
     public ResponseEntity<String> groupUpdate(@RequestBody GroupDTO groupDTO) {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        String updateResult = groupService.update(currentUserEmail ,groupDTO);
-        return "error".equals(updateResult) ?
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("그룹 업데이트 실패") :
-                ResponseEntity.ok(updateResult);
+        return ResponseEntity.ok(groupService.update(currentUserEmail ,groupDTO));
     }
 
-    @PostMapping("/delete")
+    @PostMapping("/delete") // 그룹 삭제
     public ResponseEntity<String> groupDelete(@RequestBody GroupDTO groupDTO) {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        String deleteResult = groupService.delete(currentUserEmail ,groupDTO);
-        return "error".equals(deleteResult) ?
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("그룹 삭제 실패") :
-                ResponseEntity.ok(deleteResult);
+        return ResponseEntity.ok(groupService.delete(currentUserEmail ,groupDTO));
     }
 
 }

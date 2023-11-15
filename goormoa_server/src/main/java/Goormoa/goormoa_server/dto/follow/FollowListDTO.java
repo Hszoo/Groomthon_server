@@ -1,4 +1,4 @@
-package Goormoa.goormoa_server.dto.profile;
+package Goormoa.goormoa_server.dto.follow;
 
 import lombok.*;
 
@@ -8,7 +8,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileFollowListDTO {
+public class FollowListDTO {
     private Long profileId;
     private String profileImg;
 
