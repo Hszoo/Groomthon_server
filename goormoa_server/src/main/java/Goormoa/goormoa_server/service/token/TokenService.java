@@ -13,13 +13,26 @@ public class TokenService {
     public void blacklistToken(String token) {
         blacklistedTokens.add(token);
     }
+
     public boolean isTokenBlacklisted(String token) {
         return blacklistedTokens.contains(token);
     }
+
     public Optional<String> extractToken(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return Optional.of(authHeader.substring(7));
         }
         return Optional.empty();
+    }
+
+    public String logout(String authHeader) {
+        Optional<String> optionalToken = extractToken(authHeader);
+        if (optionalToken.isPresent()) {
+            String token = optionalToken.get();
+            blacklistToken(token);
+            return "로그아웃 성공";
+        } else {
+            return "error";
+        }
     }
 }

@@ -23,7 +23,7 @@ public class UserController {
     private final TokenService tokenService;
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/login")
+    @PostMapping("/login") // 로그인
     public ResponseEntity<TokenDTO> login(@RequestBody UserDTO userDto) {
         TokenDTO jwt = userService.login(userDto);
         return jwt != null ?
@@ -31,33 +31,23 @@ public class UserController {
                 ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/signup") // 회원가입
     public ResponseEntity<String> signup(@RequestBody UserDTO userDto) {
-        String signupResult = userService.save(userDto);
-        return "error".equals(signupResult) ?
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("존재하는 이메일 입니다.") :
-                ResponseEntity.ok(signupResult);
+        return ResponseEntity.ok(userService.save(userDto));
     }
 
-    @PostMapping("/out")
+    @PostMapping("/out") // 로그아웃
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        return tokenService.extractToken(request.getHeader("Authorization"))
-                .map(token -> {
-                    tokenService.blacklistToken(token);
-                    return ResponseEntity.ok("로그아웃 성공");
-                })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰을 찾을 수 없습니다."));
+        return ResponseEntity.ok(tokenService.logout(request.getHeader("Authorization")));
     }
 
-    @PostMapping("/delete")
+    @PostMapping("/delete") // 회원탈퇴
     public ResponseEntity<String> delete() {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        String deleteResult = userService.delete(currentUserEmail);
-        return "error".equals(deleteResult) ?
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body("유저를 찾을 수 없습니다.") :
-                ResponseEntity.ok("회원탈퇴 완료");
+        return ResponseEntity.ok(userService.delete(currentUserEmail));
     }
-    @GetMapping("/api/getUserEmail")
+
+    @GetMapping("/api/getUserEmail") // 회원 이메일 추출
     public ResponseEntity<String> getUserEmail() {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
         return ResponseEntity.ok(currentUserEmail);
