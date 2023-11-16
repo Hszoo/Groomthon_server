@@ -40,15 +40,16 @@ public class AlarmService {
         User followToUser = getUser(currentUserEmail);
         User followFromUser = convertToEntity(followAlarmDTO.getFollowDTO().getFromUser());
         AlarmType alarmType = AlarmType.FOLLOW;
-
         Follow follow = convertToEntity(followAlarmDTO.getFollowDTO());
+//
+//        Follow follow = convertToEntity(followAlarmDTO.getFollowDTO()); // 보류
 
         FollowAlarm followAlarm = new FollowAlarm();
         followAlarm.setUser(followToUser);
         followAlarm.setContent(followFromUser.getUserName() + "님이 회원님을 팔로우하기 시작했습니다.");
         followAlarm.setType(alarmType);
 
-        follow = entityManager.merge(follow);
+//        Follow follow = entityManager.merge(new Follow()); // 보류
         followAlarm.setFollow(follow);
 
         alarmRepository.save(followAlarm);
@@ -117,7 +118,11 @@ public class AlarmService {
 
                 UserFollowAlarmDTO toUserDTO = new UserFollowAlarmDTO(followAlarm.getFollow().getToUser().getUserId(),followAlarm.getFollow().getToUser().getUserName());
                 UserFollowAlarmDTO fromUserDTO = new UserFollowAlarmDTO(followAlarm.getFollow().getFromUser().getUserId(), followAlarm.getFollow().getFromUser().getUserName());
-                FollowDTO followDTO = new FollowDTO(toUserDTO, fromUserDTO);
+                FollowDTO followDTO = new FollowDTO();
+                followDTO.setFollowId(followDTO.getFollowId());
+                followDTO.setToUser(toUserDTO);
+                followDTO.setFromUser(fromUserDTO);
+
 
                 followAlarmDTO.setFollowDTO(followDTO);
 
