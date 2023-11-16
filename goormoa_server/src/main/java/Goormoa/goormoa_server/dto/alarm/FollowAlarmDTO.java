@@ -9,9 +9,5 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FollowAlarmDTO {
-//    private Long userId;
-//    private String content; // 알람 내용
-//    private AlarmType alarmType;
-//    private Follow follow;
     private FollowDTO followDTO;
 }

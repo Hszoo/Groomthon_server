@@ -14,9 +14,9 @@ public class AlarmDTO {
     private AlarmType alarmType; // 알람 타입
     private FollowAlarmDTO followAlarmDTO;
     private GroupAlarmDTO groupAlarmDTO;
-    private AgreeAlarmDTO agreeAlarmDTO;
+    private AcceptAlarmDTO acceptAlarmDTO;
     private FinishAlarmDTO finishAlarmDTO;
-    private EtcAlarmDTO etcAlarmDTO;
+    private RejectAlarmDTO rejectAlarmDTO;
 
 //    private FollowDTO followDTO; // 팔로우 건 유저 id
 //    private Long groupUserId; // 그룹 신청한 유저 id

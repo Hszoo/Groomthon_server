@@ -1,17 +1,13 @@
 package Goormoa.goormoa_server.service.recommend;
 
 import Goormoa.goormoa_server.dto.recommend.RecommendFriendDTO;
-import Goormoa.goormoa_server.entity.follow.Follow;
 import Goormoa.goormoa_server.entity.user.User;
 import Goormoa.goormoa_server.repository.follow.FollowRepository;
 import Goormoa.goormoa_server.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

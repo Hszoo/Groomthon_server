@@ -1,12 +1,12 @@
 package Goormoa.goormoa_server.entity.alarm;
 
+import Goormoa.goormoa_server.entity.group.Group;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FinishAlarm extends Alarm{
-    @Column(name = "group_id")
-    private Long groupId;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "group_id")
+    private Group group;
 }
