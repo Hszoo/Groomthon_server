@@ -92,5 +92,16 @@ public class GroupController {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
         return groupService.applyToGroup(groupId, currentUserEmail);
     }
+    /* 모임 신청 승인 */
+    @PostMapping("/{groupId}/approve/{userId}")
+    public String approveUserToGroup(@PathVariable Long groupId, @PathVariable Long userId) {
+        return groupService.approveApplication(groupId, userId);
+    }
+
+    /* 모임 신청 거부 */
+    @PostMapping("/{groupId}/reject/{userId}")
+    public String rejectUserToGroup(@PathVariable Long groupId, @PathVariable Long userId) {
+        return groupService.rejectApplication(groupId, userId);
+    }
 
 }
