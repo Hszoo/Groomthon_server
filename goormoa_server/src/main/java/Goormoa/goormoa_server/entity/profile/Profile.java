@@ -1,10 +1,13 @@
 package Goormoa.goormoa_server.entity.profile;
 
 
+import Goormoa.goormoa_server.entity.group.Group;
 import Goormoa.goormoa_server.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -21,53 +24,46 @@ public class Profile {
 
     /* user - profile 매핑 */
     @OneToOne
-    @JoinColumn(name = "user_id", unique = true, referencedColumnName = "userId")
-    private User user; // 1 대 1 유저
-
-//    private String userId;
+    @JsonIgnore
+    @JoinColumn(name = "user_id") // 또는 다른 적절한 컬럼 이름
+    private User user;
+//
+//    private Long userId;
 //    private String userNickName;
 
     private String profileImg; // 프로필 사진
 
-//    @ElementCollection
-//    private List<String> userInterests; // 유저 흥미 카테고리 -> 수정 예정
+    @ElementCollection
+    private List<String> userInterests; // 유저 흥미 카테고리 -> 수정 예정
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "profile_participating_groups",
-//            joinColumns = @JoinColumn(name = "profile_id"),
-//            inverseJoinColumns = @JoinColumn(name = "group_id")
-//    )
-//    private List<Group> participatingGroups; // 프로필이 참여 중인 모임들
-//
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "profile_group_mapping",
+            joinColumns = @JoinColumn(name = "profile_id"), // 여기를 profile_id로 변경
+            inverseJoinColumns = @JoinColumn(name = "group_id"))
+    private List<Group> participatingGroups;
+
+
+//    @OneToMany(mappedBy = "groupHost")
+//    private List<Group> recruitingGroups = new ArrayList<>();
+
+
+
 //    @ManyToMany(mappedBy = "applicants")
 //    private List<Group> applyingGroups; // 프로필이 신청 중인 모임들
-//
-//
-//
-//    @OneToMany(mappedBy = "groupHost")
-//    private List<Group> recruitingGroups; // 프로필이 모집 중인 모임들
 
 
-    // 생성자 정의
-    public Profile(User user, String profileImg) {
-        this.user = user;
-        this.profileImg = profileImg;
-    }
-
-//    public static Profile toEntity(ProfileDTO profileDto) {
-//        return Profile.builder()
-////                .user(profileDto.getUserId())
-////                .userNickName(profileDto.getUserName())
-////                .userId(profileDto.getUserId())
-////                .userInterests(profileDto.getUserInterests())
-//                .profileImg(profileDto.getProfileImg())
-//                .build();
-//    }
-
+    //    // 생성자 정의
     public Profile(User user) {
         this.user = user;
+
     }
 
-}
 
+//
+//
+//    public Profile(Long userId) {
+//        this.userId = userId;
+//    }
+
+}

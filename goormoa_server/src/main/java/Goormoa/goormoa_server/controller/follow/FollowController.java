@@ -22,7 +22,7 @@ public class FollowController {
         return ResponseEntity.ok(followService.toggleFollowing(targetUserId, currentUserEmail));
     }
 
-    @PostMapping("follower/{targetUserId}") // 팔로워 목록에서 팔로우 관
+    @PostMapping("follower/{targetUserId}") // 팔로워 목록에서 팔로우 관리
     public ResponseEntity<String> followerUser(@PathVariable Long targetUserId) {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
         return ResponseEntity.ok(followService.deleteFollower(targetUserId, currentUserEmail));

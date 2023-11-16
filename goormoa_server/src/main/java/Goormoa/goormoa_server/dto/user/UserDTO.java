@@ -1,5 +1,4 @@
 package Goormoa.goormoa_server.dto.user;
-
 import lombok.*;
 
 @Getter

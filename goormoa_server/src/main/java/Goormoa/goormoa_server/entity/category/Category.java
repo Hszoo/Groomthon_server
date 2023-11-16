@@ -1,6 +1,5 @@
 package Goormoa.goormoa_server.entity.category;
 
 public enum Category {
-    GAME, STUDY, EXERCISE
+    CULTURE, SPORTS, RELATIONSHIP, STUDY, GAME, TRAVEL, PROJECT, ETC
 }
-

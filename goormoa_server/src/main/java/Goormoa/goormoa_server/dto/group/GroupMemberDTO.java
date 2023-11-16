@@ -1,5 +1,6 @@
 package Goormoa.goormoa_server.dto.group;
 
+
 import Goormoa.goormoa_server.dto.user.ChatUserDTO;
 import lombok.*;
 
