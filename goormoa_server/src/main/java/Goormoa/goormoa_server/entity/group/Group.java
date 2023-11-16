@@ -4,6 +4,8 @@ package Goormoa.goormoa_server.entity.group;
 import Goormoa.goormoa_server.entity.category.Category;
 import Goormoa.goormoa_server.entity.chat.ChatRoom;
 import Goormoa.goormoa_server.entity.user.User;
+import Goormoa.goormoa_server.entity.profile.Profile;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -34,9 +36,11 @@ public class Group {
     @JoinColumn(name = "group_host_user_id")
     private User groupHost; // 그룹 호스트 유저 식별자
 
-    private Integer maxParticipants; // 그룹 최대 인원
+    private Integer maxCount; // 그룹 최대 인원
 
-    private Integer currentParticipants; // 그룹 현재 인원
+    private Integer currentCount; // 그룹 현재 인원
+
+    private Boolean close; // 모임 모집 마감 여부
 
     private Category category; // 카테고리
 
@@ -49,6 +53,17 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.EAGER)
     private List<GroupMember> groupMembers;
 
+    @ManyToMany(mappedBy = "participatingGroups", fetch = FetchType.LAZY)
+    private List<Profile> participants;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "group_applicants",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "profile_id")
+    )
+    private List<Profile> applicants;
+
     @OneToOne(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private ChatRoom chatRoom; // 그룹과 연결된 채팅방
 
@@ -60,6 +75,23 @@ public class Group {
         if (this.chatRoom == null) {
             this.chatRoom = new ChatRoom(this);
         }
+    }
+
+    public void addApplicant(Profile applicant) {
+        applicants.add(applicant);
+    }
+
+    public void removeApplicant(Profile applicant) {
+        applicants.remove(applicant);
+    }
+
+    public void acceptApplicant(Profile applicant) {
+        applicants.remove(applicant);
+        participants.add(applicant);
+    }
+
+    public void rejectApplicant(Profile applicant) {
+        applicants.remove(applicant);
     }
 
 }

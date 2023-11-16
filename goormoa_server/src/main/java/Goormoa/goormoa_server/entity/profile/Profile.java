@@ -1,9 +1,9 @@
 package Goormoa.goormoa_server.entity.profile;
 
-
 import Goormoa.goormoa_server.entity.user.User;
+import Goormoa.goormoa_server.entity.group.Group;
 import lombok.*;
-
+import java.util.List;
 import javax.persistence.*;
 
 @Entity
@@ -29,15 +29,16 @@ public class Profile {
 
     private String profileImg; // 프로필 사진
 
-//    @ElementCollection
-//    private List<String> userInterests; // 유저 흥미 카테고리 -> 수정 예정
+    @ElementCollection
+    private List<String> userInterests; // 유저 흥미 카테고리 -> 수정 예정
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "profile_participating_groups",
-//            joinColumns = @JoinColumn(name = "profile_id"),
-//            inverseJoinColumns = @JoinColumn(name = "group_id")
-//    )
+    @ManyToMany
+    @JoinTable(
+            name = "profile_participating_groups",
+            joinColumns = @JoinColumn(name = "profile_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private List<Group> participatingGroups;
 //    private List<Group> participatingGroups; // 프로필이 참여 중인 모임들
 //
 //    @ManyToMany(mappedBy = "applicants")
