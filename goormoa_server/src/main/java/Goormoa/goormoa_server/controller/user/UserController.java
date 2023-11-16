@@ -5,6 +5,7 @@ import Goormoa.goormoa_server.dto.recommend.RecommendFriendDTO;
 import Goormoa.goormoa_server.dto.token.TokenDTO;
 import Goormoa.goormoa_server.dto.user.UserDTO;
 import Goormoa.goormoa_server.service.auth.AuthenticationService;
+import Goormoa.goormoa_server.service.recommend.FriendRecommendationService;
 import Goormoa.goormoa_server.service.token.TokenService;
 import Goormoa.goormoa_server.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
     private final AuthenticationService authenticationService;
-//    private final FriendRecommendationService friendRecommendationService;
+    private final FriendRecommendationService friendRecommendationService;
 
     @PostMapping("/login") // 로그인
     public ResponseEntity<TokenDTO> login(@RequestBody UserDTO userDto) {
@@ -51,11 +52,11 @@ public class UserController {
     }
 
 
-//    @GetMapping("/recommend") // 추천 친구
-//    public ResponseEntity<List<RecommendFriendDTO>> recommend() {
-//        String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-//        return ResponseEntity.ok(friendRecommendationService.getRecommendFriendList(currentUserEmail));
-//    }
+    @GetMapping("/recommend") // 추천 친구
+    public ResponseEntity<List<RecommendFriendDTO>> recommend() {
+        String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
+        return ResponseEntity.ok(friendRecommendationService.getRecommendFriendList(currentUserEmail));
+    }
 
     @GetMapping("/api/getUserEmail") // 회원 이메일 추출
     public ResponseEntity<String> getUserEmail() {
