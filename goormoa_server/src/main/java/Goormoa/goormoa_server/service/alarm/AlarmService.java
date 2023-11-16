@@ -1,14 +1,13 @@
 package Goormoa.goormoa_server.service.alarm;
 
 
-import Goormoa.goormoa_server.dto.alarm.AlarmDTO;
-import Goormoa.goormoa_server.dto.alarm.FollowAlarmDTO;
+import Goormoa.goormoa_server.dto.alarm.*;
 import Goormoa.goormoa_server.dto.follow.FollowDTO;
+import Goormoa.goormoa_server.dto.group.GroupDTO;
 import Goormoa.goormoa_server.dto.user.UserFollowAlarmDTO;
-import Goormoa.goormoa_server.entity.alarm.Alarm;
-import Goormoa.goormoa_server.entity.alarm.AlarmType;
-import Goormoa.goormoa_server.entity.alarm.FollowAlarm;
+import Goormoa.goormoa_server.entity.alarm.*;
 import Goormoa.goormoa_server.entity.follow.Follow;
+import Goormoa.goormoa_server.entity.group.Group;
 import Goormoa.goormoa_server.entity.user.User;
 import Goormoa.goormoa_server.repository.alarm.AlarmRepository;
 import Goormoa.goormoa_server.repository.group.GroupRepository;
@@ -30,9 +29,10 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final GroupRepository groupRepository;
     private final ModelMapper modelMapper;
-    @PersistenceContext
-    private EntityManager entityManager;
+//    @PersistenceContext
+//    private EntityManager entityManager;
 
+    /* 팔로우 알림 전송 메소드 */
     @Transactional
     public void saveFollowAlarm(String currentUserEmail, FollowAlarmDTO followAlarmDTO) {
         User followToUser = getUser(currentUserEmail);
@@ -52,52 +52,54 @@ public class AlarmService {
 
         alarmRepository.save(followAlarm);
     }
-//    public void saveGroupAlarm(String currentUserEmail, GroupAlarmDTO groupAlarmDTO) {
-//        Long userId = getUser(currentUserEmail).getUserId();
-//        String groupUserName = userRepository.findById(groupAlarmDTO.getGroupUserId()).get().getUserName();
-//        String groupName = groupRepository.findById(groupAlarmDTO.getGroupId()).get().getGroupTitle();
-//        AlarmType alarmType = AlarmType.FOLLOW;
-//        GroupAlarm groupAlarm = new GroupAlarm();
-//        groupAlarm.setUser(userRepository.findById(userId).get());
-//        groupAlarm.setContent(groupUserName+"님이 '"+groupName+"' 구름에 참가 요청을 했습니다.");
-//        groupAlarm.setType(alarmType);
-//        groupAlarm.setGroupId(groupAlarmDTO.getGroupId());
-//        groupAlarm.setGroupUserId(groupAlarm.getGroupUserId());
-//        alarmRepository.save(groupAlarm);
-//    }
-//    public void saveAgreeAlarm(String currentUserEmail, AgreeAlarmDTO agreeAlarmDTO) {
-//        Long userId = getUser(currentUserEmail).getUserId();
-//        String groupName = groupRepository.findById(agreeAlarmDTO.getGroupId()).get().getGroupTitle();
-//        AlarmType alarmType = AlarmType.FOLLOW;
-//        AgreeAlarm agreeAlarm = new AgreeAlarm();
-//        agreeAlarm.setUser(userRepository.findById(userId).get());
-//        agreeAlarm.setContent("‘"+groupName+"!’ 구름이 모집 마감되었습니다. 모임원들을 확인해 보세요!");
-//        agreeAlarm.setType(alarmType);
-//        agreeAlarm.setGroupId(agreeAlarmDTO.getGroupId());
-//        alarmRepository.save(agreeAlarm);
-//    }
-//    public void saveFinishAlarm(String currentUserEmail, FinishAlarmDTO finishAlarmDTO) {
-//        Long userId = getUser(currentUserEmail).getUserId();
-//        String groupName = groupRepository.findById(finishAlarmDTO.getGroupId()).get().getGroupTitle();
-//        AlarmType alarmType = AlarmType.FOLLOW;
-//        FinishAlarm finishAlarm = new FinishAlarm();
-//        finishAlarm.setUser(userRepository.findById(userId).get());
-//        finishAlarm.setContent("‘"+groupName+"구름 참여 승인되었습니다. 모임원들과 인사를 나눠보세요!👋");
-//        finishAlarm.setType(alarmType);
-//        finishAlarm.setGroupId(finishAlarm.getGroupId());
-//        alarmRepository.save(finishAlarm);
-//    }
+    /* 그룹 신ㅇ 전송 메소드 */
+    public void saveGroupAlarm(User host, User applicant, Group group) {
+        String groupName = group.getGroupTitle();
 
-    // 기타 알람이 있을 시 사용할 예정
-//    public void saveEtcAlarm(String currentUserEmail, EtcAlarmDTO etcAlarmDTO) {
-//        Long userId = getUser(currentUserEmail).getUserId();
-//        AlarmType alarmType = AlarmType.FOLLOW;
-//        AlarmDTO alarmDTO = new AlarmDTO();
-//        alarmDTO.setUserId(userId);
-//        alarmDTO.setAlarmType(alarmType);
-//        alarmDTO.setEtcAlarmDTO(etcAlarmDTO);
-//        alarmRepository.save(convertToEntity(alarmDTO));
-//    }
+        AlarmType alarmType = AlarmType.GROUP;
+        GroupAlarm groupAlarm = new GroupAlarm();
+        groupAlarm.setGroup(group);
+        groupAlarm.setType(alarmType);
+        groupAlarm.setUser(host);
+        groupAlarm.setContent(applicant.getUserName()+"님이 '"+groupName+"' 구름에 참가 요청을 했습니다.");
+        alarmRepository.save(groupAlarm); // applicant 의 userId 값이 같이 전송되는지 궁금
+    }
+
+    /* 그룹 마감 알림 전송 메소드 */
+    public void saveFinishAlarm(String participantEmail, GroupDTO groupDTO) {
+        Long userId = getUser(participantEmail).getUserId();
+        String groupName = groupRepository.findById(groupDTO.getGroupId()).get().getGroupTitle();
+        Group group = groupRepository.findByGroupId(groupDTO.getGroupId());
+
+        AlarmType alarmType = AlarmType.FINISH;
+        FinishAlarm finishAlarm = new FinishAlarm();
+        finishAlarm.setGroup(group);
+        finishAlarm.setType(alarmType);
+        finishAlarm.setUser(userRepository.findById(userId).get());
+        finishAlarm.setContent("‘"+groupName+"!’ 구름이 모집 마감되었습니다. 모임원들을 확인해 보세요!");
+
+        alarmRepository.save(finishAlarm);
+    }
+    public void saveAcceptAlarm(Group group, User applicant) {
+        String groupName = group.getGroupTitle();
+        AcceptAlarm acceptAlarm = new AcceptAlarm();
+        AlarmType alarmType = AlarmType.ACCEPT;
+        acceptAlarm.setGroup(group);
+        acceptAlarm.setUser(applicant);
+        acceptAlarm.setType(alarmType);
+        acceptAlarm.setContent("‘"+groupName+"구름 참여 승인되었습니다. 모임원들과 인사를 나눠보세요!👋");
+        alarmRepository.save(acceptAlarm);
+    }
+    public void saveRejectAlarm(Group group, User applicant) {
+        String groupName = group.getGroupTitle();
+        RejectAlarm rejectAlarm = new RejectAlarm();
+        AlarmType alarmType = AlarmType.REJECT;
+        rejectAlarm.setGroup(group);
+        rejectAlarm.setUser(applicant);
+        rejectAlarm.setType(alarmType);
+        rejectAlarm.setContent("‘"+groupName+"구름 참여 거절되었습니다. 다음 기회에 또 봬요!🥹");
+        alarmRepository.save(rejectAlarm);
+    }
     public List<AlarmDTO> getAlarms(String currentUserEmail) {
         User currentUser = getUser(currentUserEmail);
         List<Alarm> alarms = alarmRepository.findByUser(currentUser);

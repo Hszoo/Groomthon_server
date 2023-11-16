@@ -1,5 +1,6 @@
 package Goormoa.goormoa_server.dto.alarm;
 
+import Goormoa.goormoa_server.dto.group.GroupMemberDTO;
 import lombok.*;
 
 @Getter
@@ -8,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupAlarmDTO {
-    private Long groupUserId;
     private Long groupId;
+    private GroupMemberDTO groupMemberDTO;
 }

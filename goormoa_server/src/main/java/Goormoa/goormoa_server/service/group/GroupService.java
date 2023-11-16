@@ -1,5 +1,6 @@
 package Goormoa.goormoa_server.service.group;
 
+import Goormoa.goormoa_server.dto.alarm.GroupAlarmDTO;
 import Goormoa.goormoa_server.dto.group.DividedGroups;
 import Goormoa.goormoa_server.dto.group.GroupDetailDTO;
 import Goormoa.goormoa_server.dto.profile.ProfileDetailDTO;
@@ -13,6 +14,7 @@ import Goormoa.goormoa_server.repository.group.GroupMemberRepository;
 import Goormoa.goormoa_server.repository.group.GroupRepository;
 import Goormoa.goormoa_server.repository.profile.ProfileRepository;
 import Goormoa.goormoa_server.repository.user.UserRepository;
+import Goormoa.goormoa_server.service.alarm.AlarmService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
@@ -31,6 +33,7 @@ public class GroupService {
     private final ProfileRepository profileRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final AlarmService alarmService;
     private final ModelMapper modelMapper;
 
     private static final String SUCCESS = "success";
@@ -155,21 +158,37 @@ public class GroupService {
         return loginUserEmail.equals(group.getGroupHost().getUserEmail());
     }
 
-    // 모임 모집 마감 처리
+    // 모임 모집 마감 처리  --> 정목 수정(알림 구현)
     public void closeGroup(String loginUserEmail, GroupDTO groupDto)  {
         if(this.isHost(loginUserEmail, groupDto.getGroupId()))
             groupDto.setClose(true);
+
+        GroupAlarmDTO groupAlarmDTO = new GroupAlarmDTO();
+        groupAlarmDTO.setGroupId(groupDto.getGroupId());
+
+        Group group = groupRepository.findById(groupDto.getGroupId()).orElse(null);
+        if (group != null) {
+            List<Profile> participants = group.getParticipants();
+            for (Profile participant : participants) {
+                alarmService.saveFinishAlarm(participant.getUser().getUserEmail(), groupDto);
+            }
+        }
+
     }
 
-    /* 모임 신청 요청 처리 */
+    // 모임 신청 요청 처리 --> 정목 수정(알림 구현)
     @Transactional
     public String applyToGroup(Long groupId, String userEmail) {
         Group group = groupRepository.findById(groupId).orElse(null);
-        Optional<User> optionalUser = userRepository.findByUserEmail(userEmail);
-
-        if (optionalUser.isEmpty()) {
-            return null;
+        if (group == null) {
+            return "group not found";
         }
+
+        Optional<User> optionalUser = userRepository.findByUserEmail(userEmail);
+        if (optionalUser.isEmpty()) {
+            return "user not found";
+        }
+
         User user = optionalUser.get();
         Profile applicant = profileRepository.findByUser(user);
 
@@ -183,6 +202,10 @@ public class GroupService {
             group.addApplicant(applicant);
             applicant.getParticipatingGroups().add(group);
             groupRepository.save(group);
+
+            // 모임의 호스트에게 알림 보내기
+            alarmService.saveGroupAlarm(group.getGroupHost(), user, group);
+
             return "success";
         } else {
             // 이미 지원자로 등록되어 있으면 실패 메시지 반환
@@ -190,6 +213,7 @@ public class GroupService {
         }
     }
 
+    // 모임 승인 요청 처리 --> 정목 수정(알림 구현)
     @Transactional
     public void acceptApplication(Long groupId, Long userId) {
         Group group = groupRepository.findById(groupId).orElse(null);
@@ -199,9 +223,11 @@ public class GroupService {
             group.acceptApplicant(applicant);
             applicant.getParticipatingGroups().add(group);
             groupRepository.save(group);
+            alarmService.saveAcceptAlarm(group, applicant.getUser());
         }
     }
 
+    // 모임 승인 요청 처리 --> 정목 수정(알림 구현)
     @Transactional
     public void rejectApplication(Long groupId, Long userId) {
         Group group = groupRepository.findById(groupId).orElse(null);
@@ -210,6 +236,7 @@ public class GroupService {
         if (group != null && applicant != null) {
             group.rejectApplicant(applicant);
             groupRepository.save(group);
+            alarmService.saveRejectAlarm(group, applicant.getUser());
         }
     }
 

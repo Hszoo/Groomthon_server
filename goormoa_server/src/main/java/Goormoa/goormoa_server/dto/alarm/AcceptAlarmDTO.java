@@ -7,6 +7,6 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class EtcAlarmDTO {
+public class AcceptAlarmDTO {
     private Long groupId;
 }
