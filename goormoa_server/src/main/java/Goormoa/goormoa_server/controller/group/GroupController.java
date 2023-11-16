@@ -27,15 +27,16 @@ public class GroupController {
 
     /* 모집 중인 모임 조회 */
     @GetMapping
-    public List<GroupDTO> getRecruitingGroups() {
-        return groupService.getRecruitingGroups();
+    public List<GroupDTO> getAllRecruitingGroups() {
+        String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
+        return groupService.getAllRecruitingGroups(currentUserEmail);
     }
-
-    /* 모임 검색 : 전체 모임 데이터 GET 요청 */
-    @GetMapping("/all")
-    public List<GroupDTO> getGroupList() {
-        return groupService.getAllGroups();
-    }
+//
+//    /* 모임 검색 : 전체 모임 데이터 GET 요청 */
+//    @GetMapping("/all")
+//    public List<GroupDTO> getGroupList() {
+//        return groupService.getAllGroups();
+//    }
 
     /* 사용자가 포함된 모든 모임 조회 */
     @GetMapping("/myGroups")
