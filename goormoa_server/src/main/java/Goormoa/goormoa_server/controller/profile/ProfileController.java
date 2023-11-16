@@ -35,56 +35,18 @@ public class ProfileController {
         return profileService.getProfile(currentUserEmail);
     }
 
-    /* post 요청 : 회원가입시에만 발생 */
-//    @PostMapping("/profile")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public ProfileDTO createProfile(@RequestBody ProfileDTO requestDto) {
-//        String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-//        Optional<User> optionalUser = userRepository.findByUserEmail(currentUserEmail);
-//
-//        if(!optionalUser.isPresent()) {
-//            return null;
-//        }
-//
-//        User user = optionalUser.get();
-//        Profile profile = profileRepository.findByUser(user);
-//
-//        ProfileDTO profileDto = profileService.createProfile(requestDto, user);
-//        if (profileDto != null) {
-//            return profileDto;
-//        }
-//        /* 사용자가 인증되지 않은 경우 */
-//        return null;
-//    }
-
     /* 프로필 편집 */
+    @PatchMapping("/profile")
+    public ProfileDTO editProfile(@RequestBody ProfileDTO editRequestDto) {
+        logger.info("프로필 컨트롤러 -> 프로필 수정 동작중");
+
+        String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
+        return profileService.editProfile(currentUserEmail, editRequestDto);
+    }
+
 
     /* 마이페이지 GET 요청 */
 //    @GetMapping("/mypage")
-//    @PatchMapping("/profile")
-//    public ProfileDTO editProfile(@RequestBody ProfileDTO editRequestDto) {
-//        logger.info("프로필 컨트롤러 -> 프로필 수정 동작중");
-//
-//        String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-//        return profileService.editProfile(currentUserEmail, editRequestDto);
-//
-//        String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-//        Optional<User> optionalUser = userRepository.findByUserEmail(currentUserEmail);
-//
-//        if(!optionalUser.isPresent()) {
-//            return null;
-//        }
-//
-//        User user = optionalUser.get();
-////        Profile profile = profileRepository.findByUser(user);
-//
-//        ProfileDTO profileDto = profileService.editProfile(editRequestDto, user);
-//        if (profileDto != null) {
-//            return profileDto;
-//        }
-//        /* 사용자가 인증되지 않은 경우 */
-//        return null;
-//   }
 //    @ResponseBody
 //    @ResponseStatus(HttpStatus.OK)
 //    public MypageDTO getMyPage() {
@@ -132,6 +94,5 @@ public class ProfileController {
 //
 //        return myGroupDto;
 //    }
-
 }
 
