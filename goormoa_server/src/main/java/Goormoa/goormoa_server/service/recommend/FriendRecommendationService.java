@@ -12,36 +12,38 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FriendRecommendationService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
-    public List<RecommendFriendDTO> getRecommendFriendList(String currentUserEmail) {
-        Optional<User> optionalUser = findUserEmail(currentUserEmail);
-        List<Follow> myFollowList = followRepository.findByToUserUserId(optionalUser.get().getUserId());
-        List<RecommendFriendDTO> recommendFriendList = new ArrayList<>();
-        if(optionalUser.isPresent()) {
-            for(int i=0; i< myFollowList.size(); i++) {
-                List<Follow> myFollowFollowList = followRepository.findByToUserUserId(myFollowList.get(i).getToUser().getUserId());
-                for(int j=0; j<myFollowFollowList.size(); j++) {
-                    User user = followRepository.findByToUser(myFollowFollowList.get(j).getToUser().getUserId());
-                    RecommendFriendDTO recommendFriendDTO = new RecommendFriendDTO();
-                    recommendFriendDTO.setUserId(user.getUserId());
-                    recommendFriendDTO.setUserName(user.getUserName());
-                    recommendFriendDTO.setUserEmail(user.getUserEmail());
-                    recommendFriendList.add(recommendFriendDTO);
-                }
-            }
-        }
 
-        Collections.shuffle(recommendFriendList); // 리스트 섞기
-        return recommendFriendList;
+    public List<RecommendFriendDTO> getRecommendFriendList(String currentUserEmail) {
+        return userRepository.findByUserEmail(currentUserEmail)
+                .map(user -> getRecommendFriendsForUser(user))
+                .orElse(Collections.emptyList());
     }
 
+    private List<RecommendFriendDTO> getRecommendFriendsForUser(User user) {
+        return followRepository.findByToUserUserId(user.getUserId()).stream()
+                .flatMap(follow -> followRepository.findByToUserUserId(follow.getToUser().getUserId()).stream())
+                .map(follow -> createRecommendFriendDTO(follow.getToUser()))
+                .distinct()
+                .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                    Collections.shuffle(list);
+                    return list;
+                }));
+    }
 
-    public Optional<User> findUserEmail(String currentUserEmail) {
-        return userRepository.findByUserEmail(currentUserEmail);
+    private RecommendFriendDTO createRecommendFriendDTO(User user) {
+        RecommendFriendDTO dto = new RecommendFriendDTO();
+        dto.setUserId(user.getUserId());
+        dto.setUserName(user.getUserName());
+        dto.setUserEmail(user.getUserEmail());
+        dto.setProfileImg(user.getProfile().getProfileImg());
+        return dto;
     }
 }
+
