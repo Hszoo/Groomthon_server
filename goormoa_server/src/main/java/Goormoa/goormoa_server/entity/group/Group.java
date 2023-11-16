@@ -80,16 +80,10 @@ public class Group {
     public void addApplicant(Profile applicant) {
         applicants.add(applicant);
     }
-
-    public void removeApplicant(Profile applicant) {
-        applicants.remove(applicant);
-    }
-
     public void acceptApplicant(Profile applicant) {
         applicants.remove(applicant);
         participants.add(applicant);
     }
-
     public void rejectApplicant(Profile applicant) {
         applicants.remove(applicant);
     }
