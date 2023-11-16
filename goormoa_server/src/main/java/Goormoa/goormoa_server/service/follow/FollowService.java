@@ -82,9 +82,13 @@ public class FollowService {
         for (Follow follow : follows) {
             User user = isToUser ? follow.getToUser() : follow.getFromUser();
             FollowListDTO followListDTO = modelMapper.map(user, FollowListDTO.class);
-            FollowDetailListDTO followDetailListDTO = new FollowDetailListDTO(user.getProfile().getProfileId(), user.getProfile().getProfileImg());
-            followListDTO.setFollowDetailListDTO(followDetailListDTO);
-            followListDTOS.add(followListDTO);
+
+            if(user.getProfile() != null) {
+                FollowDetailListDTO followDetailListDTO = new FollowDetailListDTO(user.getProfile().getProfileId(), user.getProfile().getProfileImg());
+                followListDTO.setFollowDetailListDTO(followDetailListDTO);
+                followListDTOS.add(followListDTO);
+            }
+
         }
         return followListDTOS;
     }

@@ -86,5 +86,6 @@ public class Group {
     public void acceptApplicant(Profile applicant) {
         applicants.remove(applicant);
         participants.add(applicant);
+        currentCount += 1;
     }
 }

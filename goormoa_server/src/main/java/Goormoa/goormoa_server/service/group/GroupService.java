@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,19 +39,32 @@ public class GroupService {
 
     private static final String SUCCESS = "success";
 
-    /* 전체 모임 조회 */
-    public List<GroupDTO> getAllGroups() {
-        List<Group> groups = groupRepository.findAll();
-        // 이 그룹에서 팔로우 중인 사용자의 그룹만 나오도록 필터링
-        return mapGroupsToDTOs(groups);
-    }
+    /* 전체 모임 조회
+        -> 현재 모집 중인, 팔로우 하는 사용자 대상, 내가 host가 아닌 모임  */
+    public List<GroupDTO> getAllRecruitingGroups(String userEmail) {
+        // 현재 사용자 정보를 가져오는 예시 코드 (실제 코드에 맞게 변경해야 함)
 
-    /* 모집 중인 모임 조회 */
-    public List<GroupDTO> getRecruitingGroups() {
-        List<Group> recruitingGroups = groupRepository.findByCloseFalse();
-        // 이 그룹에서 팔로우 중인 사용자의 그룹만 나오도록 필터링
+        User currentUser = userRepository.findByUserEmail(userEmail).orElse(null);
 
-        return mapGroupsToDTOs(recruitingGroups);
+        if (currentUser == null) {
+            // 사용자가 로그인하지 않았거나, 사용자 정보를 찾을 수 없는 경우
+            return Collections.emptyList();
+        }
+
+        // 현재 모집 중인 모든 그룹을 가져오기
+        List<Group> allGroups = groupRepository.findByCloseFalse();
+
+//        // 현재 사용자가 팔로우하는 그룹만 필터링
+//        List<Group> followingGroups = allGroups.stream()
+//                .filter(group -> currentUser..getFollowing().contains(group))
+//                .collect(Collectors.toList());
+//
+//        // 호스트가 아닌 그룹만 필터링
+//        List<Group> nonHostGroups = followingGroups.stream()
+//                .filter(group -> !group.getGroupHost().equals(currentUser))
+//                .collect(Collectors.toList());
+
+        return mapGroupsToDTOs(allGroups);
     }
 
     /* 내가 포함된 모든 모임 조회 */
