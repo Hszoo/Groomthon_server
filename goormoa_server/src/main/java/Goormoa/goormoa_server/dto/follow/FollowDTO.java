@@ -9,10 +9,12 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class FollowDTO {
-    private UserFollowAlarmDTO toUser;
-    private UserFollowAlarmDTO fromUser;
+    private Long followId;
+    private UserFollowAlarmDTO toUser; // 상대 유저
+    private UserFollowAlarmDTO fromUser; // 현재 유저
 
-    public FollowDTO(UserFollowAlarmDTO toUser, UserFollowAlarmDTO fromUser) {
+    public FollowDTO(Long followId, UserFollowAlarmDTO toUser, UserFollowAlarmDTO fromUser) {
+        this.followId = followId;
         this.toUser = toUser;
         this.fromUser = fromUser;
     }

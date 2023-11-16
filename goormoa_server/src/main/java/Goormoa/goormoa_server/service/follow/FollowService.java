@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -37,8 +38,7 @@ public class FollowService {
         if (currentUser.getUserId().equals(targetUserId)) {
             return "error";
         }
-
-        Optional<Follow> followOptional = followRepository.findByToUserAndFromUser(currentUser, targetUser);
+        Optional<Follow> followOptional = followRepository.findByToUserAndFromUser(targetUser, currentUser);
         if (followOptional.isPresent()) {
             Optional<FollowAlarm> followAlarmOptional = alarmRepository.findByFollowFollowId(followOptional.get().getFollowId());
             if(followAlarmOptional.isPresent()) {
@@ -47,13 +47,15 @@ public class FollowService {
             followRepository.delete(followOptional.get());
             return "UnFollow 성공";
         } else {
-            // 팔로우하지 않은 경우 팔로우 처리
-            Follow follow = new Follow(targetUser, currentUser);
-            followRepository.save(follow);
+            // 팔로우하지 않은 경우 팔로우 처리 (왜 저장이 되는지 모르겠음,,,)
+//            Follow follow = new Follow(targetUser, currentUser);
+//            followRepository.save(follow);
 
             // 팔로우 알람 생성 및 저장
             FollowAlarmDTO followAlarmDTO = new FollowAlarmDTO();
-            FollowDTO followDTO = new FollowDTO(convertToUserDTO(currentUser), convertToUserDTO(targetUser));
+            FollowDTO followDTO = new FollowDTO();
+            followDTO.setToUser(convertToUserDTO(targetUser));
+            followDTO.setFromUser(convertToUserDTO(currentUser));
             followAlarmDTO.setFollowDTO(followDTO);
             alarmService.saveFollowAlarm(currentUserEmail, followAlarmDTO);
 

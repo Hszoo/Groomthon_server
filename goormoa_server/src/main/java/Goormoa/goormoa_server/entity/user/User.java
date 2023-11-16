@@ -31,7 +31,6 @@ public class User {
     private String userPassword; // 유저 비밀번호
 
     @OneToOne(cascade = CascadeType.ALL)
-//    @PrimaryKeyJoinColumn
     private Profile profile; // Profile 엔티티와의 일대일 관계 정의
 
     @OneToMany(mappedBy = "fromUser", cascade = CascadeType.ALL, orphanRemoval = true)
