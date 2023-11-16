@@ -1,6 +1,7 @@
 package Goormoa.goormoa_server.controller.follow;
 
 import Goormoa.goormoa_server.dto.follow.FollowDTO;
+import Goormoa.goormoa_server.dto.follow.FollowListDTO;
 import Goormoa.goormoa_server.service.auth.AuthenticationService;
 import Goormoa.goormoa_server.service.follow.FollowService;
 import lombok.RequiredArgsConstructor;
@@ -22,23 +23,23 @@ public class FollowController {
         return ResponseEntity.ok(followService.toggleFollowing(targetUserId, currentUserEmail));
     }
 
-    @PostMapping("follower/{targetUserId}") // 팔로워 목록에서 팔로우 관
+    @PostMapping("follower/{targetUserId}") // 팔로워 목록에서 팔로우 관리
     public ResponseEntity<String> followerUser(@PathVariable Long targetUserId) {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
         return ResponseEntity.ok(followService.deleteFollower(targetUserId, currentUserEmail));
     }
 
     @GetMapping("/followers") // 팔로워 목록 출력
-    public ResponseEntity<List<FollowDTO>> getFollowers() {
+    public ResponseEntity<List<FollowListDTO>> getFollowers() {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        List<FollowDTO> followers = followService.getFollowers(currentUserEmail);
+        List<FollowListDTO> followers = followService.getFollowers(currentUserEmail);
         return ResponseEntity.ok(followers);
     }
 
     @GetMapping("/following") // 팔로잉 목록 출력
-    public ResponseEntity<List<FollowDTO>> getFollowing() {
+    public ResponseEntity<List<FollowListDTO>> getFollowing() {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        List<FollowDTO> following = followService.getFollowing(currentUserEmail);
+        List<FollowListDTO> following = followService.getFollowing(currentUserEmail);
         return ResponseEntity.ok(following);
     }
 }
