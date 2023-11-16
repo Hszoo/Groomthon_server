@@ -3,6 +3,7 @@ package Goormoa.goormoa_server.controller.group;
 
 import Goormoa.goormoa_server.dto.group.DividedGroups;
 import Goormoa.goormoa_server.dto.group.GroupDTO;
+import Goormoa.goormoa_server.dto.group.GroupDetailDTO;
 import Goormoa.goormoa_server.repository.group.GroupRepository;
 import Goormoa.goormoa_server.repository.user.UserRepository;
 import Goormoa.goormoa_server.service.auth.AuthenticationService;
@@ -74,11 +75,9 @@ public class GroupController {
 
     /* 모임 상세 페이지 GET 요청 (완료)*/
     @GetMapping("/{groupId}")
-    public GroupDTO getGroup(@PathVariable Long groupId) {
-        String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        return groupService.detailGroup(currentUserEmail, groupId);
+    public GroupDetailDTO getGroup(@PathVariable Long groupId) {
+        return groupService.detailGroup(groupId);
     }
-
 
     /* 모임 모집 마감 요청 */
     @PostMapping("/complete")
