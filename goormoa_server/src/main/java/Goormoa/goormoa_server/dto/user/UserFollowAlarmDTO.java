@@ -1,4 +1,4 @@
-package Goormoa.goormoa_server.dto.follow;
+package Goormoa.goormoa_server.dto.user;
 
 import lombok.*;
 
@@ -7,8 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class FollowListDTO {
+public class UserFollowAlarmDTO {
     private Long userId;
     private String userName;
-    private FollowDetailListDTO followDetailListDTO;
 }

@@ -1,15 +1,19 @@
 package Goormoa.goormoa_server.dto.follow;
 
 
+import Goormoa.goormoa_server.dto.user.UserFollowAlarmDTO;
 import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 public class FollowDTO {
-    private Long userId;
-    private String userName;
-    private FollowListDTO followListDTO;
+    private UserFollowAlarmDTO toUser;
+    private UserFollowAlarmDTO fromUser;
+
+    public FollowDTO(UserFollowAlarmDTO toUser, UserFollowAlarmDTO fromUser) {
+        this.toUser = toUser;
+        this.fromUser = fromUser;
+    }
 }
