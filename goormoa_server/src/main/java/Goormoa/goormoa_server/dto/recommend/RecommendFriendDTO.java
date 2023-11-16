@@ -11,4 +11,5 @@ public class RecommendFriendDTO {
     private Long userId;
     private String userEmail;
     private String userName;
+    private String profileImg;
 }
