@@ -43,48 +43,4 @@ public class GroupDetailDTO {
         this.applicants = applicants;
         this.participants = participants;
     }
-//
-//    public GroupDTO(Group group, UserInfoDTO userInfoDTO) {
-//        this.groupId = group.getGroupId();
-//        this.host = userInfoDTO;
-//        this.closeDate = group.getCloseDate();
-//        this.groupTitle = group.getGroupTitle();
-//        this.groupInfo = group.getGroupInfo();
-//        this.maxCount = group.getMaxCount();
-//        this.currentCount = group.getCurrentCount();
-//    }
-//
-//    public GroupDTO(Group group, List<UserDTO> usersDTOs, UserInfoDTO hostInfo, List<ProfileDetailDTO> applicants, List<ProfileDetailDTO> participants) {
-//        this.groupId = group.getGroupId();
-//        this.host = hostInfo;
-//        this.closeDate = group.getCloseDate();
-//        this.groupTitle = group.getGroupTitle();
-//        this.groupInfo = group.getGroupInfo();
-//        this.maxCount = group.getMaxCount();
-////        this.currentCount = group.getCurrentCount();
-////        this.applicants = applicants;
-////        this.participants = participants;
-//    }
-//
-//    public List<ProfileDetailDTO> getGroupParticipants(List<Profile> participants) {
-//        return participants.stream()
-//                .map(ProfileDetailDTO::new)
-//                .collect(Collectors.toList());
-//    }
-//
-//    public List<ProfileDetailDTO> getGroupApplicants(List<Profile> applicants) {
-//        return applicants.stream()
-//                .map(ProfileDetailDTO::new)
-//                .collect(Collectors.toList());
-//    }
-//    public List<GroupDTO> mapGroupsToDTOs(List<Group> groups) {
-//        return groups.stream()
-//                .map(group -> new GroupDTO(
-//                        group,
-//                        new UserInfoDTO(group.getGroupHost()),
-//                        getGroupApplicants(group.getApplicants()),
-//                        getGroupParticipants(group.getParticipants())))
-//                .collect(Collectors.toList());
-//    }
-
 }

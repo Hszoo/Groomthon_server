@@ -19,7 +19,6 @@ public class ProfileDTO {
         this.userInfo = userInfo;
         this.profileInfo = profileInfo;
     }
-    /* 생성자 */
     public static ProfileDTO toDTO(UserInfoDTO userInfo, ProfileInfoDTO profileInfo, Profile profile) {
         ProfileDTO dto = new ProfileDTO();
         dto.setProfileId(profile.getProfileId());
