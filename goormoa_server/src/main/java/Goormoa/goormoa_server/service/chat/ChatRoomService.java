@@ -129,6 +129,7 @@ public class ChatRoomService {
         if (message == null) {
             return null;
         }
+        // ModelMapper를 사용하여 Message 객체를 MessageDTO 객체로 매핑합니다.
         return modelMapper.map(message, MessageDTO.class);
     }
 

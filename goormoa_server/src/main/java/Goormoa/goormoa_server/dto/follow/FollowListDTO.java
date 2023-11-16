@@ -13,4 +13,3 @@ public class FollowListDTO {
     private String profileImg;
 
 }
-

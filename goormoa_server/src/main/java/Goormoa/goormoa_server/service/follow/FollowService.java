@@ -1,16 +1,11 @@
 package Goormoa.goormoa_server.service.follow;
 
-import Goormoa.goormoa_server.dto.alarm.FollowAlarmDTO;
 import Goormoa.goormoa_server.dto.follow.FollowDTO;
 import Goormoa.goormoa_server.dto.follow.FollowListDTO;
-import Goormoa.goormoa_server.entity.alarm.Alarm;
-import Goormoa.goormoa_server.entity.alarm.FollowAlarm;
 import Goormoa.goormoa_server.entity.follow.Follow;
 import Goormoa.goormoa_server.entity.user.User;
-import Goormoa.goormoa_server.repository.alarm.AlarmRepository;
 import Goormoa.goormoa_server.repository.follow.FollowRepository;
 import Goormoa.goormoa_server.repository.user.UserRepository;
-import Goormoa.goormoa_server.service.alarm.AlarmService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -26,8 +21,6 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-    private final AlarmRepository alarmRepository;
-    private final AlarmService alarmService;
 
     public String toggleFollowing(Long targetUserId, String currentUserEmail) {
         User currentUser = getUserByEmail(currentUserEmail);
@@ -39,18 +32,10 @@ public class FollowService {
 
         Optional<Follow> followOptional = followRepository.findByToUserAndFromUser(targetUser, currentUser);
         if (followOptional.isPresent()) {
-            Optional<FollowAlarm> followAlarmOptional = alarmRepository.findByFollowFollowId(followOptional.get().getFollowId());
-            if(followAlarmOptional.isPresent()) {
-                alarmRepository.delete(followAlarmOptional.get());
-            }
             followRepository.delete(followOptional.get());
             return "UnFollow 성공";
         } else {
-            Follow follow = new Follow(targetUser, currentUser);
-            followRepository.save(follow);
-            FollowAlarmDTO followAlarmDTO = new FollowAlarmDTO();
-            followAlarmDTO.setFollow(follow);
-            alarmService.saveFollowAlarm(currentUserEmail, followAlarmDTO);
+            followRepository.save(new Follow(targetUser, currentUser));
             return "Follow 성공";
         }
     }
