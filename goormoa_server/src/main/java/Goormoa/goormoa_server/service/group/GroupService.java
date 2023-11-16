@@ -153,10 +153,6 @@ public class GroupService {
         return new DividedGroups(myRecruitingGroupDTOs, myParticipatingGroupDTOs);
     }
 
-    private Optional<User> findUserEmail(String currentUserEmail) {
-        return userRepository.findByUserEmail(currentUserEmail);
-    }
-
     private Optional<Group> findGroup(Long groupId) {
         return groupRepository.findById(groupId);
     }
