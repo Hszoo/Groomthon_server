@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class GroupService {
@@ -180,32 +180,26 @@ public class GroupService {
     @Transactional
     public String applyToGroup(Long groupId, String userEmail) {
         Group group = groupRepository.findById(groupId).orElse(null);
-        if (group == null) {
-            return "group not found";
-        }
-
         Optional<User> optionalUser = userRepository.findByUserEmail(userEmail);
-        if (optionalUser.isEmpty()) {
-            return "user not found";
+
+        if (group == null || optionalUser.isEmpty()) {
+            return null;  // groupId에 해당하는 그룹이 없거나 사용자가 존재하지 않는 경우
         }
 
         User user = optionalUser.get();
         Profile applicant = profileRepository.findByUser(user);
 
         // 이미 그룹에 참여 중인지 확인
-        if (group.getParticipants().contains(applicant)) {
-            return "participant already exists";
+        if (group.getParticipants() != null && group.getParticipants().contains(applicant)) {
+            return "user already exists";
         }
 
         // 이미 그룹에 지원자로 등록되어 있는지 확인
-        if (!group.getApplicants().contains(applicant)) {
+        if (group.getApplicants() != null && !group.getApplicants().contains(applicant)) {
             group.addApplicant(applicant);
-            applicant.getParticipatingGroups().add(group);
             groupRepository.save(group);
-
             // 모임의 호스트에게 알림 보내기
             alarmService.saveGroupAlarm(group.getGroupHost(), user, group);
-
             return "success";
         } else {
             // 이미 지원자로 등록되어 있으면 실패 메시지 반환
@@ -213,32 +207,76 @@ public class GroupService {
         }
     }
 
-    // 모임 승인 요청 처리 --> 정목 수정(알림 구현)
     @Transactional
-    public void acceptApplication(Long groupId, Long userId) {
-        Group group = groupRepository.findById(groupId).orElse(null);
-        Profile applicant = profileRepository.findById(userId).orElse(null);
+    public String approveApplication(Long groupId, Long userId) {
+        Optional<Group> groupOptional = groupRepository.findById(groupId);
+        Optional<User> userOptional = userRepository.findById(userId);
 
-        if (group != null && applicant != null) {
-            group.acceptApplicant(applicant);
-            applicant.getParticipatingGroups().add(group);
-            groupRepository.save(group);
-            alarmService.saveAcceptAlarm(group, applicant.getUser());
+        if (groupOptional.isPresent() && userOptional.isPresent()) {
+            Group group = groupOptional.get();
+            User user = userOptional.get();
+
+            // 해당 사용자에 대한 프로필을 가져옴
+            Optional<Profile> applicantOptional = Optional.ofNullable(profileRepository.findByUser(user));
+
+            if (applicantOptional.isPresent()) {
+                Profile applicant = applicantOptional.get();
+
+                // 모임 내 신청자에 포함되어 있는지 확인
+                if (group.getApplicants() != null && group.getApplicants().contains(applicant) && !group.getParticipants().contains(applicant)) {
+                    group.acceptApplicant(applicant);
+                    applicant.getParticipatingGroups().add(group);
+                    groupRepository.save(group);
+                    alarmService.saveAcceptAlarm(group, applicant.getUser());
+                    return "success";
+                } else {
+                    // 신청자가 아닌 경우
+                    return "this user is not applicant";
+                }
+            } else {
+                // 해당 사용자에 대한 프로필이 없으면 실패 메시지 반환
+                return "profile not found for user";
+            }
         }
+        return "user approve fail";
     }
 
-    // 모임 승인 요청 처리 --> 정목 수정(알림 구현)
     @Transactional
-    public void rejectApplication(Long groupId, Long userId) {
-        Group group = groupRepository.findById(groupId).orElse(null);
-        Profile applicant = profileRepository.findById(userId).orElse(null);
+    public String rejectApplication(Long groupId, Long userId) {
+        Optional<Group> groupOptional = groupRepository.findById(groupId);
+        Optional<User> userOptional = userRepository.findById(userId);
 
-        if (group != null && applicant != null) {
-            group.rejectApplicant(applicant);
-            groupRepository.save(group);
-            alarmService.saveRejectAlarm(group, applicant.getUser());
+        if (groupOptional.isPresent() && userOptional.isPresent()) {
+            Group group = groupOptional.get();
+            User user = userOptional.get();
+
+            // 해당 사용자에 대한 프로필을 가져옴
+            Optional<Profile> applicantOptional = Optional.ofNullable(profileRepository.findByUser(user));
+
+            if (applicantOptional.isPresent()) {
+                Profile applicant = applicantOptional.get();
+
+                // 모임 내 신청자에 포함되어 있는지 확인
+                if (group.getApplicants() != null && group.getApplicants().contains(applicant)) {
+                    group.removeApplicant(applicant);
+                    groupRepository.save(group);
+                    alarmService.saveRejectAlarm(group, applicant.getUser());
+                    return "success";
+                } else {
+                    // 신청자가 아닌 경우
+                    return "this user is not applicant";
+                }
+            } else {
+                // 해당 사용자에 대한 프로필이 없으면 실패 메시지 반환
+                return "profile not found for user";
+            }
         }
+        return "user reject fail";
+
     }
+
+
+
 
     // -> DTO 전환 위한 메서드
     private List<GroupDTO> mapGroupsToDTOs(List<Group> groups) {
@@ -260,12 +298,16 @@ public class GroupService {
     }
 
     private GroupDetailDTO mapGroupDetailDTO(Group group) {
+        // 컬렉션 초기화
+        Hibernate.initialize(group.getApplicants());
+        Hibernate.initialize(group.getParticipants());
+
+        // 초기화된 컬렉션을 사용하여 DTO 생성
         List<ProfileDetailDTO> applicants = mapProfilesToDTOs(group.getApplicants());
         List<ProfileDetailDTO> participants = mapProfilesToDTOs(group.getParticipants());
 
         return new GroupDetailDTO(group, applicants, participants);
     }
-
     private User getByUser(String currentUserEmail) {
         return userRepository.findByUserEmail(currentUserEmail).orElse(null);
     }
