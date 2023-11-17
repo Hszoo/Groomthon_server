@@ -1,4 +1,5 @@
 package Goormoa.goormoa_server.entity.group;
+
 import Goormoa.goormoa_server.entity.user.User;
 import lombok.*;
 

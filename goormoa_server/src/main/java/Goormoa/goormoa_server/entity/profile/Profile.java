@@ -2,9 +2,9 @@ package Goormoa.goormoa_server.entity.profile;
 
 import Goormoa.goormoa_server.entity.user.User;
 import Goormoa.goormoa_server.entity.group.Group;
+import javax.persistence.*;
 import lombok.*;
 import java.util.List;
-import javax.persistence.*;
 
 @Entity
 @Data
@@ -27,7 +27,7 @@ public class Profile {
     private String profileImg; // 프로필 사진
 
     @ElementCollection
-    private List<String> userInterests; // 유저 흥미 카테고리 -> 수정 예정
+    private List<String> category; // 유저 흥미 카테고리 -> 수정 예정
 
     @ManyToMany
     @JoinTable(

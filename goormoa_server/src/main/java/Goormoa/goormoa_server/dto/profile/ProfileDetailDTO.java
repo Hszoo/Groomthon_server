@@ -1,7 +1,6 @@
 package Goormoa.goormoa_server.dto.profile;
 
 import Goormoa.goormoa_server.entity.profile.Profile;
-import Goormoa.goormoa_server.entity.user.User;
 import lombok.*;
 
 @Getter

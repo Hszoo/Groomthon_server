@@ -13,7 +13,6 @@ public class UserInfoDTO {
     private Long userId;
     private String userEmail;
     private String userName;
-
     public UserInfoDTO(User user) {
         this.userId = user.getUserId();
         this.userName = user.getUserName();

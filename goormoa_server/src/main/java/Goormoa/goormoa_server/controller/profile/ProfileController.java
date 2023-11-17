@@ -47,12 +47,12 @@ public class ProfileController {
     }
 
     /* 프로필 편집 */
-    @PatchMapping("/profile")
-    public ProfileDTO editProfile(@RequestBody ProfileDTO editRequestDto) {
+    @PostMapping("/profile")
+    public String update(@RequestBody ProfileDTO editRequestDto) {
         logger.info("프로필 컨트롤러 -> 프로필 편집중");
 
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        return profileService.editProfile(currentUserEmail, editRequestDto);
+        return profileService.update(currentUserEmail, editRequestDto);
     }
 }
 

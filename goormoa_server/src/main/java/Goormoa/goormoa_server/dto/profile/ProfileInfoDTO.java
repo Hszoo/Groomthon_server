@@ -1,5 +1,6 @@
 package Goormoa.goormoa_server.dto.profile;
 
+import Goormoa.goormoa_server.entity.category.Category;
 import lombok.*;
 
 import java.util.List;
@@ -12,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ProfileInfoDTO {
     private String profileImg; // 프로필 사진
-    private List<String> interestings;
+    private List<String> category;
 }

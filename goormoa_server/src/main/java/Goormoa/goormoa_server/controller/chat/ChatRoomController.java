@@ -1,6 +1,5 @@
 package Goormoa.goormoa_server.controller.chat;
 
-
 import Goormoa.goormoa_server.dto.chat.ChatRoomDTO;
 import Goormoa.goormoa_server.dto.chat.ChatRoomDetailsDTO;
 import Goormoa.goormoa_server.dto.chat.MessageDTO;

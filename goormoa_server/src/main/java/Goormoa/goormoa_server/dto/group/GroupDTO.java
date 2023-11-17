@@ -2,16 +2,12 @@ package Goormoa.goormoa_server.dto.group;
 
 import Goormoa.goormoa_server.entity.category.Category;
 import Goormoa.goormoa_server.dto.user.UserInfoDTO;
-import Goormoa.goormoa_server.dto.user.UserDTO;
-import Goormoa.goormoa_server.dto.profile.ProfileDetailDTO;
-
 
 import Goormoa.goormoa_server.entity.group.Group;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter

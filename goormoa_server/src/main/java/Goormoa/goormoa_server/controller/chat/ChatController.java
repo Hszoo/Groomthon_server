@@ -19,13 +19,11 @@ public class ChatController {
     private final MessageRepository messageRepository;
     private final UserService userService;
 
-
 //    @GetMapping("/chat/{chatRoomId}")
 //    public ResponseEntity<List<Message>> enterChatRoom(@PathVariable Long chatRoomId) {
 //        List<Message> messages = messageRepository.findByChatRoom_ChatRoomId(chatRoomId);
 //        return ResponseEntity.ok(messages); // JSON 형식으로 데이터 반환
 //    }
-
 
     @MessageMapping("/chat/{chatRoomId}")
     @SendTo("/topic/messages/{chatRoomId}")

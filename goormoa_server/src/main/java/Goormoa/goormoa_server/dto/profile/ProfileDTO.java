@@ -3,6 +3,9 @@ package Goormoa.goormoa_server.dto.profile;
 import lombok.*;
 import Goormoa.goormoa_server.dto.user.UserInfoDTO;
 import Goormoa.goormoa_server.entity.profile.Profile;
+
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -19,6 +22,7 @@ public class ProfileDTO {
         this.userInfo = userInfo;
         this.profileInfo = profileInfo;
     }
+    
     public static ProfileDTO toDTO(UserInfoDTO userInfo, ProfileInfoDTO profileInfo, Profile profile) {
         ProfileDTO dto = new ProfileDTO();
         dto.setProfileId(profile.getProfileId());
