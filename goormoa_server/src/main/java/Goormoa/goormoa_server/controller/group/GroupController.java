@@ -1,18 +1,18 @@
 package Goormoa.goormoa_server.controller.group;
 
 
-import Goormoa.goormoa_server.dto.group.DividedGroups;
 import Goormoa.goormoa_server.dto.group.GroupDTO;
+import Goormoa.goormoa_server.dto.group.DividedGroups;
 import Goormoa.goormoa_server.dto.group.GroupDetailDTO;
-import Goormoa.goormoa_server.repository.group.GroupRepository;
+import Goormoa.goormoa_server.entity.user.User;
 import Goormoa.goormoa_server.repository.user.UserRepository;
+import Goormoa.goormoa_server.repository.group.GroupRepository;
 import Goormoa.goormoa_server.service.auth.AuthenticationService;
 import Goormoa.goormoa_server.service.group.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -22,16 +22,14 @@ import java.util.Optional;
 public class GroupController {
     private final GroupService groupService;
     private final AuthenticationService authenticationService;
-    private final GroupRepository groupRepository;
     private final UserRepository userRepository;
-
     /* 모집 중인 모임 조회 */
     @GetMapping
     public List<GroupDTO> getAllRecruitingGroups() {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
-        return groupService.getAllRecruitingGroups(currentUserEmail);
+        return groupService.getAllGroups(currentUserEmail);
     }
-//
+
 //    /* 모임 검색 : 전체 모임 데이터 GET 요청 */
 //    @GetMapping("/all")
 //    public List<GroupDTO> getGroupList() {
@@ -43,6 +41,16 @@ public class GroupController {
     public DividedGroups getMyGroupList() {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
         return groupService.getMyGroups(currentUserEmail);
+    }
+    /* 사용자가 포함된 모든 모임 조회 */
+    @GetMapping("/myGroups/{userId}")
+    public DividedGroups getOtherUserGroupList(@PathVariable Long userId) {
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+        if(!optionalUser.isPresent()) {
+            return null;
+        }
+        User user = optionalUser.get();
+        return groupService.getMyGroups(user.getUserEmail());
     }
 
     @PostMapping

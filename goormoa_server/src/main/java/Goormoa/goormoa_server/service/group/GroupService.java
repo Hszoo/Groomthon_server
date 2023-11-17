@@ -10,6 +10,7 @@ import Goormoa.goormoa_server.dto.group.GroupDTO;
 import Goormoa.goormoa_server.entity.group.Group;
 import Goormoa.goormoa_server.entity.group.GroupMember;
 import Goormoa.goormoa_server.entity.user.User;
+import Goormoa.goormoa_server.repository.follow.FollowRepository;
 import Goormoa.goormoa_server.repository.group.GroupMemberRepository;
 import Goormoa.goormoa_server.repository.group.GroupRepository;
 import Goormoa.goormoa_server.repository.profile.ProfileRepository;
@@ -18,14 +19,17 @@ import Goormoa.goormoa_server.service.alarm.AlarmService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -34,37 +38,50 @@ public class GroupService {
     private final ProfileRepository profileRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
     private final AlarmService alarmService;
     private final ModelMapper modelMapper;
 
     private static final String SUCCESS = "success";
+    private static final String ERROR = "error";
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @PersistenceContext
+    private EntityManager entityManager;
+    public boolean checkFollowRelationship(User toUser, User fromUser) {
+        String jpql = "SELECT COUNT(f) > 0 FROM Follow f WHERE f.toUser=:toUser AND f.fromUser=:fromUser";
+        Query query = entityManager.createQuery(jpql);
+        query.setParameter("toUser", toUser);
+        query.setParameter("fromUser", fromUser);
+        return (boolean) query.getSingleResult();
+    }
+
+
 
     /* 전체 모임 조회
-        -> 현재 모집 중인, 팔로우 하는 사용자 대상, 내가 host가 아닌 모임  */
-    public List<GroupDTO> getAllRecruitingGroups(String userEmail) {
-        // 현재 사용자 정보를 가져오는 예시 코드 (실제 코드에 맞게 변경해야 함)
-
+        -> 팔로우하는 사용자가 모집 중인 모임 조회  */
+    public List<GroupDTO> getAllGroups(String userEmail) {
+        // 현재 사용자 정보를 가져오기
         User currentUser = userRepository.findByUserEmail(userEmail).orElse(null);
-
         if (currentUser == null) {
-            // 사용자가 로그인하지 않았거나, 사용자 정보를 찾을 수 없는 경우
             return Collections.emptyList();
         }
 
-        // 현재 모집 중인 모든 그룹을 가져오기
+        // 현재 모집 중인 모든 그룹
         List<Group> allGroups = groupRepository.findByCloseFalse();
+        if (allGroups == null) {
+            return Collections.emptyList();
+        }
 
-//        // 현재 사용자가 팔로우하는 그룹만 필터링
-//        List<Group> followingGroups = allGroups.stream()
-//                .filter(group -> currentUser..getFollowing().contains(group))
-//                .collect(Collectors.toList());
-//
-//        // 호스트가 아닌 그룹만 필터링
-//        List<Group> nonHostGroups = followingGroups.stream()
-//                .filter(group -> !group.getGroupHost().equals(currentUser))
-//                .collect(Collectors.toList());
 
-        return mapGroupsToDTOs(allGroups);
+        // 사용자가 팔로우하는 사용자가 모집 중인 모임
+        List<GroupDTO> followingGroupDTOs = Objects.requireNonNull(allGroups).stream()
+                .filter(group -> userRepository.existsFollowByToUserAndFromUser(currentUser, group.getGroupHost()))
+                .map(this::mapGroupToDTO)
+                .collect(Collectors.toList());
+
+        return mapGroupsToDTOs(followingGroupDTOs);
     }
 
     /* 내가 포함된 모든 모임 조회 */
@@ -82,19 +99,18 @@ public class GroupService {
         List<GroupDTO> myRecruitingGroupDTOs = new ArrayList<>();
         for (Group group : recruitingGroups) {
             Hibernate.initialize(group.getGroupHost());
-            GroupDTO groupDTO = new GroupDTO(group, new UserInfoDTO(group.getGroupHost()));
-            myRecruitingGroupDTOs.add(groupDTO);
+            myRecruitingGroupDTOs.add(new GroupDTO(group, new UserInfoDTO(group.getGroupHost())));
         }
 
         // 참여한 모임 목록
         List<GroupDTO> myParticipatingGroupDTOs = new ArrayList<>();
         for (Group group : participatingGroups) {
-            List<ProfileDetailDTO> participantsDTOs = group.getParticipants().stream()
-                    .map(ProfileDetailDTO::new)
-                    .collect(Collectors.toList());
-            List<ProfileDetailDTO> applicantsDTOs = group.getApplicants().stream()
-                    .map(ProfileDetailDTO::new)
-                    .collect(Collectors.toList());
+//            List<ProfileDetailDTO> participantsDTOs = group.getParticipants().stream()
+//                    .map(ProfileDetailDTO::new)
+//                    .collect(Collectors.toList());
+//            List<ProfileDetailDTO> applicantsDTOs = group.getApplicants().stream()
+//                    .map(ProfileDetailDTO::new)
+//                    .collect(Collectors.toList());
             myParticipatingGroupDTOs.add(new GroupDTO(group, new UserInfoDTO(group.getGroupHost())));
         }
         return new DividedGroups(myRecruitingGroupDTOs, myParticipatingGroupDTOs);
@@ -108,7 +124,7 @@ public class GroupService {
             groupRepository.save(group);
             return "그룹 업데이트가 완료되었습니다.";
         }
-        return "error";
+        return ERROR;
     }
 
     public String delete(String currentUserEmail, GroupDTO groupDTO) {
@@ -118,7 +134,7 @@ public class GroupService {
             groupRepository.delete(group);
             return "그룹삭제가 완료되었습니다.";
         }
-        return "error";
+        return ERROR;
     }
 
     private void updateGroupDetails(Group group, GroupDTO groupDTO) {
@@ -205,7 +221,7 @@ public class GroupService {
 
         // 이미 그룹에 참여 중인지 확인
         if (group.getParticipants() != null && group.getParticipants().contains(applicant)) {
-            return "user already exists";
+            return  ERROR + "already participate";
         }
 
         // 이미 그룹에 지원자로 등록되어 있는지 확인
@@ -214,10 +230,10 @@ public class GroupService {
             groupRepository.save(group);
             // 모임의 호스트에게 알림 보내기
             alarmService.saveGroupAlarm(group.getGroupHost(), user, group);
-            return "success";
+            return SUCCESS;
         } else {
             // 이미 지원자로 등록되어 있으면 실패 메시지 반환
-            return "applicant already exists";
+            return ERROR + "already apply";
         }
     }
 
@@ -242,17 +258,17 @@ public class GroupService {
                     applicant.getParticipatingGroups().add(group);
                     groupRepository.save(group);
                     alarmService.saveAcceptAlarm(group, applicant.getUser());
-                    return "success";
+                    return SUCCESS;
                 } else {
                     // 신청자가 아닌 경우
-                    return "this user is not applicant";
+                    return ERROR + "this user is not applicant";
                 }
             } else {
                 // 해당 사용자에 대한 프로필이 없으면 실패 메시지 반환
-                return "profile not found for user";
+                return ERROR + "profile not found for user";
             }
         }
-        return "user approve fail";
+        return ERROR + "user approve fail";
     }
 
     @Transactional
@@ -275,17 +291,17 @@ public class GroupService {
                     group.removeApplicant(applicant);
                     groupRepository.save(group);
                     alarmService.saveRejectAlarm(group, applicant.getUser());
-                    return "success";
+                    return SUCCESS;
                 } else {
                     // 신청자가 아닌 경우
-                    return "this user is not applicant";
+                    return ERROR +"this user is not applicant";
                 }
             } else {
                 // 해당 사용자에 대한 프로필이 없으면 실패 메시지 반환
-                return "profile not found for user";
+                return ERROR +"profile not found for user";
             }
         }
-        return "user reject fail";
+        return ERROR + "user reject fail";
 
     }
 
@@ -293,7 +309,7 @@ public class GroupService {
 
 
     // -> DTO 전환 위한 메서드
-    private List<GroupDTO> mapGroupsToDTOs(List<Group> groups) {
+    private List<GroupDTO> mapGroupsToDTOs(List<GroupDTO> groups) {
         return groups.stream()
                 .map(group -> modelMapper.map(group, GroupDTO.class))
                 .collect(Collectors.toList());

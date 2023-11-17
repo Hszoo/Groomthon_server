@@ -12,6 +12,7 @@ public interface GroupRepository extends JpaRepository<Group, Long>  {
     List<Group> findByCloseFalse(); // myGroups 에 사용됨
 
     List<Group> findByGroupHost(User user);
+
     List<Group> findByParticipantsContaining(Profile participant);
     default List<Group> debugFindByGroupHost(User user) {
         System.out.println("debugFindByGroupHost - User: " + user);

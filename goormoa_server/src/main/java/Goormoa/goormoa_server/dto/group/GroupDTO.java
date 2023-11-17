@@ -20,7 +20,7 @@ import java.util.List;
 @ToString
 public class GroupDTO {
     private Long groupId;
-    private UserInfoDTO host;
+    private UserInfoDTO groupHost;
     private Category category;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date closeDate;
@@ -29,15 +29,15 @@ public class GroupDTO {
     private Integer maxCount;
     private Integer currentCount;
     private Boolean close;
-    private UserInfoDTO userInfoDTO;
+
 
     public GroupDTO(Group group, UserInfoDTO userInfoDTO) {
         this.groupId = group.getGroupId();
         this.closeDate = group.getCloseDate();
+        this.groupHost = userInfoDTO;
         this.groupTitle = group.getGroupTitle();
         this.groupInfo = group.getGroupInfo();
         this.maxCount = group.getMaxCount();
         this.currentCount = group.getCurrentCount();
-        this.userInfoDTO = userInfoDTO;
     }
 }
