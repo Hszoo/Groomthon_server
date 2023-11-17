@@ -4,6 +4,7 @@ package Goormoa.goormoa_server.controller.user;
 import Goormoa.goormoa_server.dto.recommend.RecommendFriendDTO;
 import Goormoa.goormoa_server.dto.token.TokenDTO;
 import Goormoa.goormoa_server.dto.user.UserDTO;
+import Goormoa.goormoa_server.dto.user.UserDetailDTO;
 import Goormoa.goormoa_server.service.auth.AuthenticationService;
 import Goormoa.goormoa_server.service.recommend.FriendRecommendationService;
 import Goormoa.goormoa_server.service.token.TokenService;
@@ -63,4 +64,10 @@ public class UserController {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
         return ResponseEntity.ok(currentUserEmail);
     }
+
+    @GetMapping("/users")
+    public List<UserDetailDTO> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
 }

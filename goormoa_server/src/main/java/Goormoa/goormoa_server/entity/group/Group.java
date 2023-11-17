@@ -34,11 +34,11 @@ public class Group {
 
     @OneToOne
     @JoinColumn(name = "group_host_user_id")
-    private User groupHost; // 그룹 호스트 유저 식별자
+    private User groupHost;
 
-    private Integer maxCount; // 그룹 최대 인원
+    private Integer maxCount;
 
-    private Integer currentCount; // 그룹 현재 인원
+    private Integer currentCount;
 
     private Boolean close; // 모임 모집 마감 여부
 

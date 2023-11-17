@@ -2,6 +2,7 @@ package Goormoa.goormoa_server.service.user;
 
 import Goormoa.goormoa_server.dto.token.TokenDTO;
 import Goormoa.goormoa_server.dto.user.UserDTO;
+import Goormoa.goormoa_server.dto.user.UserDetailDTO;
 import Goormoa.goormoa_server.entity.user.User;
 import Goormoa.goormoa_server.repository.user.UserRepository;
 import Goormoa.goormoa_server.utils.JwtUtil;
@@ -11,7 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,12 @@ public class UserService {
     @Value("${jwt.secret}")
     private String secretKey;
     private final Long expiredMs = 1000 * 60 * 60L; // 1 hour
+
+    /* 전체 사용자 조회 */
+    public List<UserDetailDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return mapUserDetailsToDTOs(users);
+    }
 
     public String save(UserDTO userDTO) {
         if (userRepository.findByUserEmail(userDTO.getUserEmail()).isPresent()) {
@@ -63,5 +72,11 @@ public class UserService {
 
     private String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
+    }
+
+    private List<UserDetailDTO> mapUserDetailsToDTOs(List<User> users) {
+        return users.stream()
+                .map(user -> new UserDetailDTO(user))
+                .collect(Collectors.toList());
     }
 }

@@ -16,4 +16,16 @@ public class UserDetailDTO {
     private String userName;
     private Long profileId;
     private String profileImg;
+
+    public UserDetailDTO(User user) {
+        this.userId = user.getUserId();
+        this.userName = user.getUserName();
+        this.userEmail = user.getUserEmail();
+
+        // Profile이 null이 아닌 경우에만 초기화
+        if (user.getProfile() != null) {
+            this.profileId = user.getProfile().getProfileId();
+            this.profileImg = user.getProfile().getProfileImg();
+        }
+    }
 }
