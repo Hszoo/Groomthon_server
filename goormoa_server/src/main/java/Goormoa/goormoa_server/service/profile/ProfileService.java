@@ -74,6 +74,5 @@ public class ProfileService {
         }
         return modelMapper.map(profile, ProfileDTO.class);
     }
-
 }
                          

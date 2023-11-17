@@ -4,11 +4,11 @@ package Goormoa.goormoa_server.controller.group;
 import Goormoa.goormoa_server.dto.group.GroupDTO;
 import Goormoa.goormoa_server.dto.group.DividedGroups;
 import Goormoa.goormoa_server.dto.group.GroupDetailDTO;
-import Goormoa.goormoa_server.entity.user.User;
-import Goormoa.goormoa_server.repository.user.UserRepository;
-import Goormoa.goormoa_server.repository.group.GroupRepository;
 import Goormoa.goormoa_server.service.auth.AuthenticationService;
 import Goormoa.goormoa_server.service.group.GroupService;
+import Goormoa.goormoa_server.entity.user.User;
+import Goormoa.goormoa_server.repository.user.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +20,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("/group")
 public class GroupController {
-    private final GroupService groupService;
     private final AuthenticationService authenticationService;
+    private final GroupService groupService;
     private final UserRepository userRepository;
     /* 모집 중인 모임 조회 */
     @GetMapping
@@ -29,12 +29,6 @@ public class GroupController {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
         return groupService.getAllGroups(currentUserEmail);
     }
-
-//    /* 모임 검색 : 전체 모임 데이터 GET 요청 */
-//    @GetMapping("/all")
-//    public List<GroupDTO> getGroupList() {
-//        return groupService.getAllGroups();
-//    }
 
     /* 사용자가 포함된 모든 모임 조회 */
     @GetMapping("/myGroups")
