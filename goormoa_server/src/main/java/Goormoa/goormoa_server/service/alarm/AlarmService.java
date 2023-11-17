@@ -1,7 +1,7 @@
 package Goormoa.goormoa_server.service.alarm;
 
-
-import Goormoa.goormoa_server.dto.alarm.*;
+import Goormoa.goormoa_server.dto.alarm.AlarmDTO;
+import Goormoa.goormoa_server.dto.alarm.FollowAlarmDTO;
 import Goormoa.goormoa_server.dto.follow.FollowDTO;
 import Goormoa.goormoa_server.dto.group.GroupDTO;
 import Goormoa.goormoa_server.dto.user.UserFollowAlarmDTO;
@@ -15,9 +15,6 @@ import Goormoa.goormoa_server.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +32,8 @@ public class AlarmService {
     /* 팔로우 알림 전송 메소드 */
     @Transactional
     public void saveFollowAlarm(String currentUserEmail, FollowAlarmDTO followAlarmDTO) {
-        User followToUser = getUser(currentUserEmail);
-        User followFromUser = convertToEntity(followAlarmDTO.getFollowDTO().getFromUser());
+        User followToUser = convertToEntity(followAlarmDTO.getFollowDTO().getToUser());
+        User followFromUser = getUser(currentUserEmail);
         AlarmType alarmType = AlarmType.FOLLOW;
         Follow follow = convertToEntity(followAlarmDTO.getFollowDTO());
 //
@@ -119,13 +116,11 @@ public class AlarmService {
                 UserFollowAlarmDTO toUserDTO = new UserFollowAlarmDTO(followAlarm.getFollow().getToUser().getUserId(),followAlarm.getFollow().getToUser().getUserName());
                 UserFollowAlarmDTO fromUserDTO = new UserFollowAlarmDTO(followAlarm.getFollow().getFromUser().getUserId(), followAlarm.getFollow().getFromUser().getUserName());
                 FollowDTO followDTO = new FollowDTO();
-                followDTO.setFollowId(followDTO.getFollowId());
+                followDTO.setFollowId(followAlarm.getFollow().getFollowId()); // 수정함
                 followDTO.setToUser(toUserDTO);
                 followDTO.setFromUser(fromUserDTO);
 
-
                 followAlarmDTO.setFollowDTO(followDTO);
-
                 alarmDTO.setFollowAlarmDTO(followAlarmDTO);
             }
             alarmDTOs.add(alarmDTO);
