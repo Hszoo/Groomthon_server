@@ -57,8 +57,6 @@ public class GroupService {
         return (boolean) query.getSingleResult();
     }
 
-
-
     /* 전체 모임 조회
         -> 팔로우하는 사용자가 모집 중인 모임 조회  */
     public List<GroupDTO> getAllGroups(String userEmail) {
@@ -80,7 +78,6 @@ public class GroupService {
                 .filter(group -> userRepository.existsFollowByToUserAndFromUser(currentUser, group.getGroupHost()))
                 .map(this::mapGroupToDTO)
                 .collect(Collectors.toList());
-
         return mapGroupsToDTOs(followingGroupDTOs);
     }
 
@@ -105,12 +102,6 @@ public class GroupService {
         // 참여한 모임 목록
         List<GroupDTO> myParticipatingGroupDTOs = new ArrayList<>();
         for (Group group : participatingGroups) {
-//            List<ProfileDetailDTO> participantsDTOs = group.getParticipants().stream()
-//                    .map(ProfileDetailDTO::new)
-//                    .collect(Collectors.toList());
-//            List<ProfileDetailDTO> applicantsDTOs = group.getApplicants().stream()
-//                    .map(ProfileDetailDTO::new)
-//                    .collect(Collectors.toList());
             myParticipatingGroupDTOs.add(new GroupDTO(group, new UserInfoDTO(group.getGroupHost())));
         }
         return new DividedGroups(myRecruitingGroupDTOs, myParticipatingGroupDTOs);
@@ -153,6 +144,7 @@ public class GroupService {
             Group group = convertToEntity(groupDTO);
             group.setGroupHost(user);
             group.setCurrentCount(1);
+            group.setClose(false);
             groupRepository.save(group);
             groupMemberRepository.save(new GroupMember(optionalUser.get(), group));
         }
@@ -188,7 +180,7 @@ public class GroupService {
         return loginUserEmail.equals(group.getGroupHost().getUserEmail());
     }
 
-    // 모임 모집 마감 처리  --> 정목 수정(알림 구현)
+    // 모임 모집 마감 처리
     public void closeGroup(String loginUserEmail, GroupDTO groupDto)  {
         if(this.isHost(loginUserEmail, groupDto.getGroupId()))
             groupDto.setClose(true);
@@ -206,7 +198,7 @@ public class GroupService {
 
     }
 
-    // 모임 신청 요청 처리 --> 정목 수정(알림 구현)
+    // 모임 신청 요청 처리
     @Transactional
     public String applyToGroup(Long groupId, String userEmail) {
         Group group = groupRepository.findById(groupId).orElse(null);
@@ -304,9 +296,6 @@ public class GroupService {
         return ERROR + "user reject fail";
 
     }
-
-
-
 
     // -> DTO 전환 위한 메서드
     private List<GroupDTO> mapGroupsToDTOs(List<GroupDTO> groups) {

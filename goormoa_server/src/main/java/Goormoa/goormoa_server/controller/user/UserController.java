@@ -1,6 +1,5 @@
 package Goormoa.goormoa_server.controller.user;
 
-
 import Goormoa.goormoa_server.dto.recommend.RecommendFriendDTO;
 import Goormoa.goormoa_server.dto.token.TokenDTO;
 import Goormoa.goormoa_server.dto.user.UserDTO;
@@ -51,7 +50,6 @@ public class UserController {
         String currentUserEmail = authenticationService.getCurrentAuthenticatedUserEmail();
         return ResponseEntity.ok(userService.delete(currentUserEmail));
     }
-
 
     @GetMapping("/recommend") // 추천 친구
     public ResponseEntity<List<RecommendFriendDTO>> recommend() {
