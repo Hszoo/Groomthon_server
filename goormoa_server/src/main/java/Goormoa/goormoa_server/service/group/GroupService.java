@@ -44,7 +44,6 @@ public class GroupService {
 
     private static final String SUCCESS = "success";
     private static final String ERROR = "error";
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @PersistenceContext
@@ -65,14 +64,11 @@ public class GroupService {
         if (currentUser == null) {
             return Collections.emptyList();
         }
-
         // 현재 모집 중인 모든 그룹
         List<Group> allGroups = groupRepository.findByCloseFalse();
         if (allGroups == null) {
             return Collections.emptyList();
         }
-
-
         // 사용자가 팔로우하는 사용자가 모집 중인 모임
         List<GroupDTO> followingGroupDTOs = Objects.requireNonNull(allGroups).stream()
                 .filter(group -> userRepository.existsFollowByToUserAndFromUser(currentUser, group.getGroupHost()))
@@ -87,24 +83,9 @@ public class GroupService {
         if (optionalUser.isEmpty()) {
             return null;
         }
-        User user = optionalUser.get();
-        Profile userProfile = profileRepository.findByUser(user);
-
-        List<Group> recruitingGroups = groupRepository.debugFindByGroupHost(user);
-        List<Group> participatingGroups = groupRepository.debugFindByParticipantsContaining(userProfile);
-
-        List<GroupDTO> myRecruitingGroupDTOs = new ArrayList<>();
-        for (Group group : recruitingGroups) {
-            Hibernate.initialize(group.getGroupHost());
-            myRecruitingGroupDTOs.add(new GroupDTO(group, new UserInfoDTO(group.getGroupHost())));
-        }
-
-        // 참여한 모임 목록
-        List<GroupDTO> myParticipatingGroupDTOs = new ArrayList<>();
-        for (Group group : participatingGroups) {
-            myParticipatingGroupDTOs.add(new GroupDTO(group, new UserInfoDTO(group.getGroupHost())));
-        }
-        return new DividedGroups(myRecruitingGroupDTOs, myParticipatingGroupDTOs);
+        User user = optionalUser.get(); // 호스트 조회 : 사용자 객체 사용
+        Profile userProfile = profileRepository.findByUser(user); // 참가자 조회 : 프로필 사용
+        return mapToDividedGroups(groupRepository.debugFindByGroupHost(user), groupRepository.debugFindByParticipantsContaining(userProfile));
     }
 
     public String update(String currentUserEmail, GroupDTO groupDTO) {
@@ -195,7 +176,6 @@ public class GroupService {
                 alarmService.saveFinishAlarm(participant.getUser().getUserEmail(), groupDto);
             }
         }
-
     }
 
     // 모임 신청 요청 처리
@@ -311,9 +291,23 @@ public class GroupService {
     }
 
     private GroupDTO mapGroupToDTO(Group group) {
-        UserInfoDTO hostInfo = new UserInfoDTO(group.getGroupHost());
+        return new GroupDTO(group, group.getGroupHost());
+    }
 
-        return new GroupDTO(group, hostInfo);
+    /* 참여한 모임 조회 결과 dto 전환 */
+    private DividedGroups mapToDividedGroups(List<Group> recruitingGroups, List<Group> participatingGroups) {
+        List<GroupDTO> myRecruitingGroupDTOs = new ArrayList<>();
+        for (Group group : recruitingGroups) {
+            Hibernate.initialize(group.getGroupHost());
+            myRecruitingGroupDTOs.add(new GroupDTO(group, group.getGroupHost()));
+        }
+
+        List<GroupDTO> myParticipatingGroupDTOs = new ArrayList<>();
+        for (Group group : participatingGroups) {
+            myParticipatingGroupDTOs.add(new GroupDTO(group, group.getGroupHost()));
+        }
+
+        return new DividedGroups(myRecruitingGroupDTOs, myParticipatingGroupDTOs);
     }
 
     private GroupDetailDTO mapGroupDetailDTO(Group group) {

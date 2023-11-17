@@ -1,10 +1,8 @@
 package Goormoa.goormoa_server.dto.profile;
 
-import lombok.*;
-import Goormoa.goormoa_server.dto.user.UserInfoDTO;
 import Goormoa.goormoa_server.entity.profile.Profile;
-
-import java.util.List;
+import Goormoa.goormoa_server.entity.user.User;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,22 +10,18 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class ProfileDTO {
-    private Long profileId; // 프로필 고유 식별자
-    private UserInfoDTO userInfo;
-    private ProfileInfoDTO profileInfo;
+    private Long userId;
+    private String userEmail;
+    private String userName;
+    private Long profileId;
+    private String profileImg; // 프로필 사진
 
-    public ProfileDTO(UserInfoDTO userInfo, ProfileInfoDTO profileInfo) {
-        this.userInfo = userInfo;
-        this.profileInfo = profileInfo;
-    }
-    
-    public static ProfileDTO toDTO(UserInfoDTO userInfo, ProfileInfoDTO profileInfo, Profile profile) {
-        ProfileDTO dto = new ProfileDTO();
-        dto.setProfileId(profile.getProfileId());
-        dto.setProfileInfo(profileInfo);
-        dto.setUserInfo(userInfo);
-        return dto;
+    public ProfileDTO(User user, Profile profile) {
+        this.userId = user.getUserId();
+        this.userEmail = user.getUserEmail();
+        this.userName = user.getUserName();
+        this.profileId = profile.getProfileId();
+        this.profileImg = profile.getProfileImg();
     }
 }

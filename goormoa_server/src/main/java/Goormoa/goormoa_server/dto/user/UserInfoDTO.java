@@ -18,4 +18,5 @@ public class UserInfoDTO {
         this.userName = user.getUserName();
         this.userEmail = user.getUserEmail();
     }
+
 }

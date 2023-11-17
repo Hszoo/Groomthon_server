@@ -2,7 +2,6 @@ package Goormoa.goormoa_server.controller.profile;
 
 import Goormoa.goormoa_server.dto.profile.ProfileDTO;
 import Goormoa.goormoa_server.entity.user.User;
-import Goormoa.goormoa_server.repository.profile.ProfileRepository;
 import Goormoa.goormoa_server.repository.user.UserRepository;
 import Goormoa.goormoa_server.service.auth.AuthenticationService;
 import Goormoa.goormoa_server.service.profile.ProfileService;
@@ -47,7 +46,7 @@ public class ProfileController {
     }
 
     /* 프로필 편집 */
-    @PostMapping("/profile")
+    @PostMapping("/profile/update")
     public String update(@RequestBody ProfileDTO editRequestDto) {
         logger.info("프로필 컨트롤러 -> 프로필 편집중");
 

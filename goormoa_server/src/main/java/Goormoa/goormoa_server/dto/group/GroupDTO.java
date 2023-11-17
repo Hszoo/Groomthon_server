@@ -4,6 +4,7 @@ import Goormoa.goormoa_server.entity.category.Category;
 import Goormoa.goormoa_server.dto.user.UserInfoDTO;
 
 import Goormoa.goormoa_server.entity.group.Group;
+import Goormoa.goormoa_server.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -16,7 +17,9 @@ import java.util.Date;
 @ToString
 public class GroupDTO {
     private Long groupId;
-    private UserInfoDTO groupHost;
+    private Long hostId;
+    private String hostEmail;
+    private String hostName;
     private Category category;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date closeDate;
@@ -26,11 +29,12 @@ public class GroupDTO {
     private Integer currentCount;
     private Boolean close;
 
-
-    public GroupDTO(Group group, UserInfoDTO userInfoDTO) {
+    public GroupDTO(Group group, User user) {
         this.groupId = group.getGroupId();
         this.closeDate = group.getCloseDate();
-        this.groupHost = userInfoDTO;
+        this.hostId = user.getUserId();
+        this.hostEmail = user.getUserEmail();
+        this.hostName = user.getUserName();
         this.groupTitle = group.getGroupTitle();
         this.groupInfo = group.getGroupInfo();
         this.maxCount = group.getMaxCount();
