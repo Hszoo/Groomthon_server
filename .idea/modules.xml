@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Goormoa.goormoa_server.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Goormoa.goormoa_server.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/TEAM_10_2.iml" filepath="$PROJECT_DIR$/.idea/TEAM_10_2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/goormoa_server.iml" filepath="$PROJECT_DIR$/.idea/modules/goormoa_server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/goormoa_server.main.iml" filepath="$PROJECT_DIR$/.idea/modules/goormoa_server.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/goormoa_server.test.iml" filepath="$PROJECT_DIR$/.idea/modules/goormoa_server.test.iml" />
+    </modules>
+  </component>
+</project>
