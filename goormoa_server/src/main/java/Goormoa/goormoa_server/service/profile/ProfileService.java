@@ -36,18 +36,14 @@ public class ProfileService {
 
     /* 프로필 GET 요청 처리 (완료) */
     public ProfileDTO getProfile(String currentUserEmail) {
-        // controller에서 전달받은 user의 profile 정보 반환
         User user = userRepository.findByUserEmail(currentUserEmail).orElse(null);
         if(user == null)
             throw new RuntimeException("null error");
         Profile profile = user.getProfile();
-        System.out.println("[getProfile]");
-        System.out.println(profile.getProfileImg());
 
         if (profile != null) {
             ProfileInfoDTO profileInfo = new ProfileInfoDTO(profile);
             UserInfoDTO userInfo = new UserInfoDTO(user);
-            System.out.println("[error 1]");
             return ProfileDTO.toDTO(userInfo, profileInfo, profile);
         }
         throw new RuntimeException("Authentication error");
@@ -62,55 +58,14 @@ public class ProfileService {
         Profile profile = getByProfile(updateProfileDTO);
         if (profile != null) {
             profile.setProfileImg(updateProfileDTO.getProfileInfo().getProfileImg());
-//            profile.setCategory(updateProfileDTO.getProfileInfo().getCategory());
-//            updateProfileDetails(profile, user, updateProfileDTO);
+            System.out.println("error1");
+            profile.setCategory(updateProfileDTO.getProfileInfo().getCategory());
+            System.out.println("error2");
             profileRepository.save(profile);
             return "프로필 업데이트가 완료되었습니다.";
         }
         return "error";
     }
-
-
-//        Profile profile = getByProfile(updateProfileDTO);
-//
-//        if (profile != null) {
-//            // 중복된 프로필이 이미 존재하면 새로운 프로필을 생성
-//            Profile updateProfile = new Profile();
-//            updateProfile.setProfileImg(updateProfileDTO.getProfileInfo().getProfileImg());
-//            updateProfile.setCategory(updateProfileDTO.getProfileInfo().getCategory());
-//            updateProfile.setUser(userOptional.get());
-//
-//            profileRepository.save(updateProfile);
-//            return "프로필 업데이트가 완료되었습니다.";
-//        }
-//
-//        return "error";
-//    }
-
-
-
-//        if(user == null)
-//            throw new RuntimeException("null error");
-//
-//        Profile profile = getByProfile(updateProfileDTO);
-//        if (profile != null) {
-//            Long updateUserId= updateProfileDTO.getUserInfo().getUserId();
-//            User updateUser = userRepository.findByUserId(updateUserId).get();
-//            if(updateUser != null) {
-//                System.out.println(updateUser.getUserName());
-//                userRepository.save(updateUser);
-//            }
-
-//            profile.setProfileImg(updateProfileDTO.getProfileInfo().getProfileImg());
-//            System.out.println(updateProfileDTO.getProfileInfo().getProfileImg());
-//            profile.setCategory(updateProfileDTO.getProfileInfo().getCategory());
-//            System.out.println(updateProfileDTO.getProfileInfo().getCategory());
-//            updateProfileDetails(profile, user, updateProfileDTO);
-//            profileRepository.save(profile);
-//            return "프로필 업데이트가 완료되었습니다.";
-
-//        return "error";
-//    }
 
 
     private void updateProfileDetails(Profile profile, User user, ProfileDTO profileDTO) {
@@ -162,9 +117,5 @@ public class ProfileService {
     private Profile getByProfile(ProfileDTO profileDTO) {
         return profileRepository.findById(profileDTO.getProfileId()).orElse(null);
     }
-
-//    private User getByUser(String currentUserEmail) {
-//        return
-//    }
 }
                          

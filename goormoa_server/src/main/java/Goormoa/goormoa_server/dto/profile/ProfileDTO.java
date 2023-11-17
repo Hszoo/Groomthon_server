@@ -28,8 +28,6 @@ public class ProfileDTO {
         dto.setProfileId(profile.getProfileId());
         dto.setProfileInfo(profileInfo);
         dto.setUserInfo(userInfo);
-        System.out.println(dto.getProfileInfo().getProfileImg());
-        System.out.println(dto.getUserInfo().getUserName());
         return dto;
     }
 }

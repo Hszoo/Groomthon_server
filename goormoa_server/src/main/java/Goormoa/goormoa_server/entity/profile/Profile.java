@@ -26,8 +26,8 @@ public class Profile {
 
     private String profileImg; // 프로필 사진
 
-    @ElementCollection
-    private List<String> category; // 유저 흥미 카테고리 -> 수정 예정
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> category;
 
     @ManyToMany
     @JoinTable(
