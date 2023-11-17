@@ -1,7 +1,7 @@
 package Goormoa.goormoa_server.dto.group;
 
-
 import Goormoa.goormoa_server.entity.group.Group;
+import Goormoa.goormoa_server.entity.category.Category;
 import Goormoa.goormoa_server.dto.profile.ProfileDetailDTO;
 import Goormoa.goormoa_server.dto.user.UserInfoDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;

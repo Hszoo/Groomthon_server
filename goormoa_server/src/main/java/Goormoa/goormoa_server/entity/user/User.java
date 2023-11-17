@@ -1,6 +1,5 @@
 package Goormoa.goormoa_server.entity.user;
 
-
 import Goormoa.goormoa_server.entity.follow.Follow;
 import Goormoa.goormoa_server.entity.group.GroupMember;
 import Goormoa.goormoa_server.entity.profile.Profile;
