@@ -294,7 +294,7 @@ public class GroupService {
         return new GroupDTO(group, group.getGroupHost());
     }
 
-    /* 참여한 모임 조회 결과 dto 전환 */
+    /* 참여한 모임 조회 결과 dto 전환 ㅁ*/
     private DividedGroups mapToDividedGroups(List<Group> recruitingGroups, List<Group> participatingGroups) {
         List<GroupDTO> myRecruitingGroupDTOs = new ArrayList<>();
         for (Group group : recruitingGroups) {
