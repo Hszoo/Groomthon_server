@@ -1,8 +1,5 @@
 package Goormoa.goormoa_server.entity.group;
 
-
-import Goormoa.goormoa_server.entity.category.Category;
-import Goormoa.goormoa_server.entity.chat.ChatRoom;
 import Goormoa.goormoa_server.entity.user.User;
 import Goormoa.goormoa_server.entity.profile.Profile;
 
@@ -42,7 +39,7 @@ public class Group {
 
     private Boolean close; // 모임 모집 마감 여부
 
-    private Category category; // 카테고리
+    private String category; // 카테고리
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date createDate; // 그룹 생성 날짜
@@ -63,17 +60,14 @@ public class Group {
             inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
     private List<Profile> applicants;
-
-    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ChatRoom chatRoom; // 그룹과 연결된 채팅방
+//
+//    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private ChatRoom chatRoom; // 그룹과 연결된 채팅방
 
     @PrePersist
     protected void prePersist() {
         if (createDate == null) {
             createDate = new Date(); // 엔티티가 저장되기 전에 현재 날짜와 시간으로 초기화
-        }
-        if (this.chatRoom == null) {
-            this.chatRoom = new ChatRoom(this);
         }
     }
 

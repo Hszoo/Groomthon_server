@@ -44,18 +44,17 @@ public class GroupService {
 
     private static final String SUCCESS = "success";
     private static final String ERROR = "error";
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @PersistenceContext
     private EntityManager entityManager;
-    public boolean checkFollowRelationship(User toUser, User fromUser) {
-        String jpql = "SELECT COUNT(f) > 0 FROM Follow f WHERE f.toUser=:toUser AND f.fromUser=:fromUser";
-        Query query = entityManager.createQuery(jpql);
-        query.setParameter("toUser", toUser);
-        query.setParameter("fromUser", fromUser);
-        return (boolean) query.getSingleResult();
-    }
+//    public boolean checkFollowRelationship(User toUser, User fromUser) {
+//        String jpql = "SELECT COUNT(f) > 0 FROM Follow f WHERE f.toUser=:toUser AND f.fromUser=:fromUser";
+//        Query query = entityManager.createQuery(jpql);
+//        query.setParameter("toUser", toUser);
+//        query.setParameter("fromUser", fromUser);
+//        return (boolean) query.getSingleResult();
+//    }
 
     /* 전체 모임 조회
         -> 팔로우하는 사용자가 모집 중인 모임 조회  */
@@ -65,14 +64,11 @@ public class GroupService {
         if (currentUser == null) {
             return Collections.emptyList();
         }
-
         // 현재 모집 중인 모든 그룹
         List<Group> allGroups = groupRepository.findByCloseFalse();
         if (allGroups == null) {
             return Collections.emptyList();
         }
-
-
         // 사용자가 팔로우하는 사용자가 모집 중인 모임
         List<GroupDTO> followingGroupDTOs = Objects.requireNonNull(allGroups).stream()
                 .filter(group -> userRepository.existsFollowByToUserAndFromUser(currentUser, group.getGroupHost()))
@@ -87,24 +83,9 @@ public class GroupService {
         if (optionalUser.isEmpty()) {
             return null;
         }
-        User user = optionalUser.get();
-        Profile userProfile = profileRepository.findByUser(user);
-
-        List<Group> recruitingGroups = groupRepository.debugFindByGroupHost(user);
-        List<Group> participatingGroups = groupRepository.debugFindByParticipantsContaining(userProfile);
-
-        List<GroupDTO> myRecruitingGroupDTOs = new ArrayList<>();
-        for (Group group : recruitingGroups) {
-            Hibernate.initialize(group.getGroupHost());
-            myRecruitingGroupDTOs.add(new GroupDTO(group, new UserInfoDTO(group.getGroupHost())));
-        }
-
-        // 참여한 모임 목록
-        List<GroupDTO> myParticipatingGroupDTOs = new ArrayList<>();
-        for (Group group : participatingGroups) {
-            myParticipatingGroupDTOs.add(new GroupDTO(group, new UserInfoDTO(group.getGroupHost())));
-        }
-        return new DividedGroups(myRecruitingGroupDTOs, myParticipatingGroupDTOs);
+        User user = optionalUser.get(); // 호스트 조회 : 사용자 객체 사용
+        Profile userProfile = profileRepository.findByUser(user); // 참가자 조회 : 프로필 사용
+        return mapToDividedGroups(groupRepository.debugFindByGroupHost(user), groupRepository.debugFindByParticipantsContaining(userProfile));
     }
 
     public String update(String currentUserEmail, GroupDTO groupDTO) {
@@ -144,6 +125,10 @@ public class GroupService {
             Group group = convertToEntity(groupDTO);
             group.setGroupHost(user);
             group.setCurrentCount(1);
+            group.setGroupInfo(group.getGroupInfo());
+            group.setMaxCount(groupDTO.getMaxCount());
+            group.setCategory(groupDTO.getCategory());
+            group.setCloseDate(groupDTO.getCloseDate());
             group.setClose(false);
             groupRepository.save(group);
             groupMemberRepository.save(new GroupMember(optionalUser.get(), group));
@@ -152,10 +137,9 @@ public class GroupService {
     }
 
     /* 모임 상세 페이지 조회 */
-    public GroupDetailDTO detailGroup(Long groupId) {
+    public GroupDTO detailGroup(Long groupId) {
         Group group = groupRepository.findByGroupId(groupId);
-
-        return mapGroupDetailDTO(group);
+        return new GroupDTO(group);
     }
 
     private Group convertToEntity(GroupDTO groupDTO) {
@@ -166,9 +150,9 @@ public class GroupService {
         return userRepository.findByUserEmail(currentUserEmail);
     }
 
-    private Optional<Group> findGroup(Long groupId) {
-        return groupRepository.findById(groupId);
-    }
+//    private Optional<Group> findGroup(Long groupId) {
+//        return groupRepository.findById(groupId);
+//    }
 
     // 현재 사용자가 host인지 판별하는 로직 작성
     public Boolean isHost(String loginUserEmail, Long groupId) {
@@ -195,7 +179,6 @@ public class GroupService {
                 alarmService.saveFinishAlarm(participant.getUser().getUserEmail(), groupDto);
             }
         }
-
     }
 
     // 모임 신청 요청 처리
@@ -304,29 +287,43 @@ public class GroupService {
                 .collect(Collectors.toList());
     }
 
-    private List<ProfileDetailDTO> mapProfilesToDTOs(List<Profile> profiles) {
-        return profiles.stream()
-                .map(profile -> modelMapper.map(profile, ProfileDetailDTO.class))
-                .collect(Collectors.toList());
-    }
+//    private List<ProfileDetailDTO> mapProfilesToDTOs(List<Profile> profiles) {
+//        return profiles.stream()
+//                .map(profile -> modelMapper.map(profile, ProfileDetailDTO.class))
+//                .collect(Collectors.toList());
+//    }
 
     private GroupDTO mapGroupToDTO(Group group) {
-        UserInfoDTO hostInfo = new UserInfoDTO(group.getGroupHost());
-
-        return new GroupDTO(group, hostInfo);
+        return new GroupDTO(group, group.getGroupHost());
     }
 
-    private GroupDetailDTO mapGroupDetailDTO(Group group) {
-        // 컬렉션 초기화
-        Hibernate.initialize(group.getApplicants());
-        Hibernate.initialize(group.getParticipants());
+    /* 참여한 모임 조회 결과 dto 전환 */
+    private DividedGroups mapToDividedGroups(List<Group> recruitingGroups, List<Group> participatingGroups) {
+        List<GroupDTO> myRecruitingGroupDTOs = new ArrayList<>();
+        for (Group group : recruitingGroups) {
+            Hibernate.initialize(group.getGroupHost());
+            myRecruitingGroupDTOs.add(new GroupDTO(group, group.getGroupHost()));
+        }
 
-        // 초기화된 컬렉션을 사용하여 DTO 생성
-        List<ProfileDetailDTO> applicants = mapProfilesToDTOs(group.getApplicants());
-        List<ProfileDetailDTO> participants = mapProfilesToDTOs(group.getParticipants());
+        List<GroupDTO> myParticipatingGroupDTOs = new ArrayList<>();
+        for (Group group : participatingGroups) {
+            myParticipatingGroupDTOs.add(new GroupDTO(group, group.getGroupHost()));
+        }
 
-        return new GroupDetailDTO(group, applicants, participants);
+        return new DividedGroups(myRecruitingGroupDTOs, myParticipatingGroupDTOs);
     }
+
+//    private GroupDetailDTO mapGroupDetailDTO(Group group) {
+//        // 컬렉션 초기화
+//        Hibernate.initialize(group.getApplicants());
+//        Hibernate.initialize(group.getParticipants());
+//
+//        // 초기화된 컬렉션을 사용하여 DTO 생성
+//        List<ProfileDetailDTO> applicants = mapProfilesToDTOs(group.getApplicants());
+//        List<ProfileDetailDTO> participants = mapProfilesToDTOs(group.getParticipants());
+//
+//        return new GroupDetailDTO(group, applicants, participants);
+//    }
     private User getByUser(String currentUserEmail) {
         return userRepository.findByUserEmail(currentUserEmail).orElse(null);
     }

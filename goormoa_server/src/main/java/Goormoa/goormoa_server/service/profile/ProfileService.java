@@ -42,9 +42,7 @@ public class ProfileService {
         Profile profile = user.getProfile();
 
         if (profile != null) {
-            ProfileInfoDTO profileInfo = new ProfileInfoDTO(profile);
-            UserInfoDTO userInfo = new UserInfoDTO(user);
-            return ProfileDTO.toDTO(userInfo, profileInfo, profile);
+            return new ProfileDTO(user, profile);
         }
         throw new RuntimeException("Authentication error");
     }
@@ -57,49 +55,15 @@ public class ProfileService {
 
         Profile profile = getByProfile(updateProfileDTO);
         if (profile != null) {
-            profile.setProfileImg(updateProfileDTO.getProfileInfo().getProfileImg());
+            profile.setProfileImg(updateProfileDTO.getProfileImg());
             System.out.println("error1");
-            profile.setCategory(updateProfileDTO.getProfileInfo().getCategory());
+            profile.setCategory(updateProfileDTO.getCategory());
             System.out.println("error2");
             profileRepository.save(profile);
             return "프로필 업데이트가 완료되었습니다.";
         }
         return "error";
     }
-
-
-    private void updateProfileDetails(Profile profile, User user, ProfileDTO profileDTO) {
-//        user.setUserEmail(profileDTO.getUserInfo().getUserEmail());
-        user.setUserName(profileDTO.getUserInfo().getUserName());
-        profile.setProfileImg(profileDTO.getProfileInfo().getProfileImg());
-//        profile.setCategory(profileDTO.getProfileInfo().getCategory());
-        profileRepository.save(profile);
-        userRepository.save(user);
-    }
-    public ProfileDTO editProfile(String userEmail, ProfileDTO updateProfileDTO) {
-        Optional<User> loggedInUser = userRepository.findByUserEmail(userEmail);
-        if (loggedInUser.isEmpty()) {
-            return null;
-        }
-
-        User user = loggedInUser.get();
-        Profile profile = profileRepository.findByUser(user);
-
-        if (profile != null) {
-            /* 프로필 업데이트 */
-            ProfileInfoDTO updatedProfileInfoDTO = updateProfileDTO.getProfileInfo();
-
-            profile.setProfileImg(updatedProfileInfoDTO.getProfileImg());
-//            profile.setCategory(updatedProfileInfoDTO.getCategory());
-
-            // sdsd
-            profileRepository.save(profile);
-            return new ProfileDTO(updateProfileDTO.getUserInfo(), updatedProfileInfoDTO);
-        } else {
-            throw new NoSuchElementException("Profile not found");
-        }
-    }
-
 
     private void updateProfileFields(Profile profile, ProfileInfoDTO updatedProfileInfoDTO) {
         profile.setProfileImg(updatedProfileInfoDTO.getProfileImg());
@@ -118,4 +82,3 @@ public class ProfileService {
         return profileRepository.findById(profileDTO.getProfileId()).orElse(null);
     }
 }
-                         

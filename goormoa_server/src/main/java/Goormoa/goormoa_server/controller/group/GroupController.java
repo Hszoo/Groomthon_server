@@ -90,11 +90,10 @@ public class GroupController {
 
     /* 모임 상세 페이지 GET 요청 (완료)*/
     @GetMapping("/{groupId}")
-    public GroupDetailDTO getGroup(@PathVariable Long groupId) {
+    public GroupDTO getGroup(@PathVariable Long groupId) {
         logger.info("그룹 컨트롤러 -> 모임 상세 페이지 요청");
         return groupService.detailGroup(groupId);
     }
-
     /* 모임 모집 마감 요청 */
     @PostMapping("/complete")
     public void groupClose(@RequestBody GroupDTO groupDTO) {

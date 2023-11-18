@@ -19,3 +19,4 @@ public class ProfileInfoDTO {
         this.category = profile.getCategory();
     }
 }
+

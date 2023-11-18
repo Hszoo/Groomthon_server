@@ -67,6 +67,8 @@ public class FriendRecommendationService {
                 }
             }
         }
+
+
     }
 
     private RecommendFriendDTO convertToDTO(User user) {

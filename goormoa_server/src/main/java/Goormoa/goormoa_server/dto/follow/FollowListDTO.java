@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 public class FollowListDTO {
     private Long userId;
+    private String userEmail;
     private String userName;
     private FollowDetailListDTO followDetailListDTO;
 }
