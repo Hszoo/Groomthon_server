@@ -25,13 +25,12 @@ public class FriendRecommendationService {
         User currentUser = optionalUser.get();
         Set<Long> followedUserIds = new HashSet<>();
 
-
-        List<Follow> fromFollows = followRepository.findByFromUserUserId(currentUser.getUserId());
+        List<Follow> fromFollows = followRepository.findByFromUserUserId(currentUser.getUserId()); // 내 팔로잉 하는
         for (Follow follow : fromFollows) {
             followedUserIds.add(follow.getFromUser().getUserId());
         }
 
-        List<Follow> toFollows = followRepository.findByToUserUserId(currentUser.getUserId());
+        List<Follow> toFollows = followRepository.findByToUserUserId(currentUser.getUserId()); // 내 팔로워
         for (Follow follow : toFollows) {
             followedUserIds.add(follow.getToUser().getUserId()); // 수정된 부분
         }
@@ -45,8 +44,9 @@ public class FriendRecommendationService {
         return recommendFriendList;
     }
 
+    // 팔로잉, 팔로워 불러옴
     private void addRecommendFriends(Long userId, Set<Long> followedUserIds, List<RecommendFriendDTO> recommendFriendList, User currentUser) {
-        List<Follow> follows = followRepository.findByFromUserUserId(userId);
+        List<Follow> follows = followRepository.findByFromUserUserId(userId); // 내가 팔로우 하는
         for (Follow follow : follows) {
             User recommendUser = follow.getToUser();
             if (!recommendUser.getUserId().equals(currentUser.getUserId()) && !followedUserIds.contains(recommendUser.getUserId())) {
@@ -57,7 +57,7 @@ public class FriendRecommendationService {
             }
         }
 
-        List<Follow> followers = followRepository.findByToUserUserId(userId);
+        List<Follow> followers = followRepository.findByToUserUserId(userId); // 나를 팔로우 하는
         for (Follow follower : followers) {
             User recommendUser = follower.getFromUser();
             if (!recommendUser.getUserId().equals(currentUser.getUserId()) && !followedUserIds.contains(recommendUser.getUserId())) {
